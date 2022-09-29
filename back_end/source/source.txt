@@ -1,0 +1,5 @@
+All the source code implemented:
+    text_parser_class -> Class created to extract the name and type of card, situated at the top and around the middle of it.
+    The card goes through various pre-processing methods (functions of the class); first, it is converted to black and white,
+    as that makes the processing easier and consumes less computation resources, then thresholding is applied in order to get
+    a clear contrast of the text, and lastly, the regions of interest are extracted.

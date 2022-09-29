@@ -1,0 +1,3 @@
+PyTests:
+    test_text_parser_class:
+        [9.30.2022] test from cards 1-5 for name & type, and 1 test failed each.
