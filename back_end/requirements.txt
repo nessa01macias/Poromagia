@@ -1,0 +1,9 @@
+pip install easyocr
+pip install open-cv
+pip install PIL
+pip install numpy
+pip install pandas
+pip install imutils
+pip install requests
+pip install langid
+pip install time

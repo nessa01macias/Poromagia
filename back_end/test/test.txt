@@ -1,3 +1,7 @@
 PyTests:
     test_text_parser_class:
-        [9.30.2022] test from cards 1-5 for name & type, and 1 test failed each.
+        [9.30.2022] tested from cards 1-5 for name & type, and 1 test failed each:
+        Text recognition is really inaccurate. Maybe try more preprocessing?
+        [10.14.2022] tested from cards 1-15 for name & type, and 3 tests failed:
+        Improved preprocessing, and changed ocr to easyocr which works better. However, there are problems with cards
+        that do not have a box surrounding the name and type, such as card 11 and 15. That is why they are both failing.
