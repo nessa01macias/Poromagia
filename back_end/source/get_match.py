@@ -9,7 +9,7 @@ if __name__ == '__main__':
     # timing the code
     start_time = time.time()
 
-    parser = TextParser('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\6.jpg')
+    parser = TextParser('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\1.jpg')
     card_name = parser.parse_name()
     card_type = parser.parse_type()
     card_language = parser.get_language()

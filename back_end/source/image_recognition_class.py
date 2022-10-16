@@ -7,7 +7,7 @@ import time
 
 
 class ImageMatch:
-    def __init__(self, file_path, card_name, card_type, card_language):
+    def __init__(self, file_path:str, card_name:str, card_type:str, card_language:str):
         self.file_path = file_path
         self.card_name = card_name
         self.card_type = card_type
@@ -16,7 +16,7 @@ class ImageMatch:
         self.possible_ids = []
 
     @staticmethod
-    def orb_sim(img1, img2) -> float:
+    def orb_sim(img1:int, img2:int) -> float:
         orb = cv2.ORB_create()
 
         kp_a, desc_a = orb.detectAndCompute(img1, None)
@@ -40,7 +40,7 @@ class ImageMatch:
             # Image.fromarray(img).show()
             self.possible_arrays.append(img)
 
-    def clean_data(self, data_frame) -> bool:
+    def clean_data(self, data_frame: int) -> bool:
         # needs to be replaced by the db stuff
         df_possible = data_frame[
             (data_frame['card_type'] == self.card_type) & (data_frame['card_name'] == self.card_name) & (
@@ -67,7 +67,7 @@ class ImageMatch:
         img1 = cv2.rotate(img1, cv2.ROTATE_90_CLOCKWISE)
         return img1
 
-    def get_match(self, data_frame) -> int:
+    def get_match(self, data_frame:int) -> int:
         img1 = self.get_original()
         success = self.clean_data(data_frame)
         if success:
@@ -78,7 +78,7 @@ class ImageMatch:
     def get_id(self):
         pass
 
-    def display_images(self, data_frame):
+    def display_images(self, data_frame:int):
         img1 = self.get_original()
         img2 = self.get_match(data_frame)
         if not(np.array_equal(img1, img2)):
