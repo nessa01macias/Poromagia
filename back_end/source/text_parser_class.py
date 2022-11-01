@@ -12,6 +12,8 @@ import easyocr
 import langid
 # measuring the time execution of the functions
 import time
+# reglex expressions
+import re
 
 reader_popular = easyocr.Reader(['en', 'es', 'fr', 'de', 'it', 'pt'], verbose=False)  # multiple languages
 
@@ -64,13 +66,13 @@ class TextParser:
     def gray_thresh(self) -> int:
         gray_image = cv2.imread(self.__file_path, 0)
         gray_image = cv2.rotate(gray_image, cv2.ROTATE_90_CLOCKWISE)
-        thresh, gray_thresh_image = cv2.threshold(gray_image, 100, 240, cv2.THRESH_BINARY)
+        thresh, gray_thresh_image = cv2.threshold(gray_image, 80, 240, cv2.THRESH_BINARY)
         Image.fromarray(gray_thresh_image).show()
         return gray_thresh_image
 
     def extract_text(self, rows, columns) -> str:
         roi_image = self.image[rows[0]:rows[1], columns[0]:columns[1]]
-        Image.fromarray(roi_image).show()
+        # Image.fromarray(roi_image).show()
 
         # applied noise removal
         roi_image = self.noise_removal(roi_image)
@@ -86,6 +88,8 @@ class TextParser:
         results = reader_popular.readtext(roi_image, detail=0, paragraph=True)
         if len(results) > 1:
             return ' '.join(results)
+        elif len(results) == 0:
+            return "No results"
         return results[0]
 
     def parse_name(self) -> str:
@@ -107,15 +111,25 @@ class TextParser:
         language = langid.classify(text_card_text)
         return language[0]
 
+    def parse_year(self) -> str:
+        rows_card_year = [1600, 1700]
+        columns_card_year = [800, 1300]
+        text = self.extract_text(rows_card_year, columns_card_year)
+        expression = r'20[0-2][0-9]|2029' # mach all the numbers between 2000 - 2029
+        year = re.findall(expression, text)
+        if len(year) > 0:
+            return year[0]
+        return "Undefined"
+
     def __str__(self) -> str:
-        return f"Name: {self.parse_name()}, Type: {self.parse_type()}, Language: {self.get_language()}"
+        return f"Name: {self.parse_name()}, Type: {self.parse_type()}, Language: {self.get_language()}, Year: {self.parse_year()} "
 
 
 if __name__ == '__main__':
     # timing the code
     start_time = time.time()
 
-    parser = TextParser('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\12.jpg')
+    parser = TextParser('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\11.jpg')
     print(parser)
 
     end_time = time.time()

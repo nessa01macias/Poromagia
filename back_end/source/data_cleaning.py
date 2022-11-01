@@ -1,6 +1,5 @@
 # more information in doc_jupyter/developing the feature detection and image classifier
 import pandas as pd
-import numpy as np
 
 
 def data(path: str):
@@ -22,3 +21,5 @@ def data(path: str):
         ['card_ID', 'card_name', 'card_type', 'card_language', 'card_image_status', 'card_image', 'card_scryfall_URL']]
 
     return df2
+
+

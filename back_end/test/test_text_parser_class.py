@@ -138,3 +138,13 @@ def test_get_type(get_text1, get_text2, get_text3, get_text4, get_text5, get_tex
     assert get_text14.parse_type() == "Legendary Creature Merfolk Wizard"
     # assert get_text15.parse_type() == "Summon Elf" ->  Actual   :'Summn Wiard nig'
 
+def test_get_year(get_text1, get_text2, get_text3, get_text4, get_text5, get_text6, get_text7, get_text8, get_text9,
+                  get_text10, get_text11, get_text12, get_text13, get_text14, get_text15):
+    assert get_text1.parse_year() == "2017"
+    assert get_text2.parse_year() == "2021"
+    assert get_text3.parse_year() == "2019"
+    assert get_text4.parse_year() == "2019"
+    assert get_text5.parse_year() == "2020"
+    assert get_text6.parse_year() == "2018"
+    assert get_text7.parse_year() == "2019"
+    assert get_text8.parse_year() == "2021"
