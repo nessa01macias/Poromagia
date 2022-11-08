@@ -1,4 +1,3 @@
-from data_cleaning import data
 import numpy as np
 from PIL import Image
 import requests
@@ -64,7 +63,7 @@ class ImageMatch:
             response_json = response.json()
             result = 1
         else:
-            time.sleep(2)  # sleeping two seconds to avoid getting banned!
+            time.sleep(1)  # sleeping two seconds to avoid getting banned!
             response = requests.get(api_urls[1])
             if response.status_code == 200:
                 response_json = response.json()
@@ -100,7 +99,7 @@ class ImageMatch:
                 percentage = self.orb_sim(image, each_possible_match["card_image"])
                 similarities_percentages.append(percentage)
             #print(similarities_percentages)
-            if max(similarities_percentages) < 0.15:
+            if max(similarities_percentages) < 0.20:
                 return -1
             index = similarities_percentages.index(max(similarities_percentages))
             return self.possible_matches[index]["card_id"]

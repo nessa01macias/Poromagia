@@ -10,10 +10,9 @@ import numpy as np
 import easyocr
 # for detecting the language of the text extracted
 import langid
-# measuring the time execution of the functions
-import time
 # reglex expressions
 import re
+import time
 
 reader_popular = easyocr.Reader(['en', 'es', 'fr', 'de', 'it', 'pt'], verbose=False)  # multiple languages
 
@@ -66,7 +65,7 @@ class TextParser:
     def gray_thresh(self) -> int:
         gray_image = cv2.imread(self.__file_path, 0)
         gray_image = cv2.rotate(gray_image, cv2.ROTATE_90_CLOCKWISE)
-        thresh, gray_thresh_image = cv2.threshold(gray_image, 80, 240, cv2.THRESH_BINARY)
+        thresh, gray_thresh_image = cv2.threshold(gray_image, 90, 250, cv2.THRESH_BINARY)
         Image.fromarray(gray_thresh_image).show()
         return gray_thresh_image
 
@@ -129,7 +128,7 @@ if __name__ == '__main__':
     # timing the code
     start_time = time.time()
 
-    parser = TextParser('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\11.jpg')
+    parser = TextParser('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\3.jpg')
     print(parser)
 
     end_time = time.time()
