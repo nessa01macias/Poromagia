@@ -1,0 +1,29 @@
+/* global styles */
+
+
+/* general */
+
+body {
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+
+/* buttons */
+
+button{
+  text-align: center;
+  padding: 3vh 6vw;
+  margin: 1vw;
+  text-decoration: none;
+  font-size: inherit;
+  font-family: inherit;
+  border-radius: 7px;
+  border-style: solid;
+  background-color: lightblue;
+}
+
+button:hover {
+  background-color: #93bbc9;
+  cursor: pointer;
+}
