@@ -1,0 +1,63 @@
+h2 {
+  text-align: center;
+}
+
+.categoryButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+
+  .selected {
+    font-weight: bold;
+    background-color: #6b9eb0;
+  }
+}
+
+.boundaryValues {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+
+  .cardBox {
+    background-color: #dadada;
+    width: 5vw;
+    height: 5vw;
+    line-height: 5vw;
+    text-align: center;
+    border-bottom: 1.5px solid black;
+    border-left: 1.5px solid black;
+    border-right: 1.5px solid black;
+    background-image: linear-gradient(white, #ababab);
+  }
+
+  input {
+    width: 8vw;
+    align-self: center;
+    padding: 1vw;
+  }
+
+  div {
+    align-self: center;
+    display: inline;
+  }
+}
+
+.wanted {
+  justify-content: center;
+
+  .wantedValue {
+    margin-right: 20vw;
+    margin-left: 1vw;
+    align-self: center;
+  }
+}
+
+.submitButtons {
+  display: flex;
+  justify-content: center;
+  margin: 6vh;
+
+  .startStopButton {
+    width: 50vw;
+  }
+}

@@ -5,10 +5,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {FormsModule} from "@angular/forms";
 import {HttpClientModule} from "@angular/common/http";
+import {MachineInitComponent} from "./machine-init/machine-init.component";
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MachineInitComponent
   ],
     imports: [
         BrowserModule,
