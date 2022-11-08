@@ -65,7 +65,7 @@ app.post('/stop', (req, res) => {
     return res.status(200).send({ message: "stop response test" });
 });
 
-app.post('recognize', (req, res, next) => {
+app.post('/recognize', (req, res, next) => {
     //TODO: get pic from body, call ML model, etc.
     return res.status(200).send({ message: "recognize response test" });
 });

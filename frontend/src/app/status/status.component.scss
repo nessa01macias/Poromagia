@@ -1,0 +1,35 @@
+.images {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  img {
+    width: 25vw;
+    margin: 2vw;
+  }
+
+  .arrow {
+    width: 15vw;
+    text-align: center;
+  }
+
+  .cardData {
+    width: 25vw;
+    margin: 2vw;
+    padding: 2vw;
+    background-color: #6b9eb0;
+  }
+}
+
+.boxes {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 3vh 0;
+
+  div {
+    width: 10vw;
+    height: 10vw;
+    background-color: #ababab;
+  }
+}

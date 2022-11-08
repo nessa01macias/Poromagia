@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import {FormsModule} from "@angular/forms";
 import {HttpClientModule} from "@angular/common/http";
 import {MachineInitComponent} from "./machine-init/machine-init.component";
+import { StatusComponent } from './status/status.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MachineInitComponent
+    MachineInitComponent,
+    StatusComponent
   ],
     imports: [
         BrowserModule,
