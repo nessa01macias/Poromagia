@@ -1,0 +1,81 @@
+#menuToggle {
+  display: none;
+}
+
+/* Hamburger menu */
+
+.hamburgerMenu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 1vw;
+  margin-top: 1vh;
+  z-index: 1;
+}
+
+.hamburgerMenu div {
+  position: relative;
+  width: 6vw;
+  height: 1vh;
+  border-radius: 3px;
+  background-color: #000000;
+  margin-top: 2vh;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Nav Styles */
+
+.nav {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: 0.95;
+  top: -100%; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+nav {
+  text-align: left;
+  margin-top: 15vh;
+}
+
+nav a {
+  position: relative;
+  text-decoration: none;
+  color: black;
+  font-size: 1.2rem;
+  display: inline-block;
+  padding: 5vh 0 5vh 25%;
+  transition: color 0.2s ease-in-out;
+  width: 100%;
+}
+
+nav a:hover {
+  background-color: #6b9eb0;
+}
+
+.active {
+  background-color: #93bbc9;
+}
+
+/* Animations */
+
+#menuToggle:checked + .hamburgerMenu .top-line {
+  transform: rotate(-45deg);
+  margin-top: 6vh;
+}
+#menuToggle:checked + .hamburgerMenu .bottom-line {
+  opacity: 0;
+  transform: rotate(45deg);
+}
+#menuToggle:checked + .hamburgerMenu .middle-line {
+  transform: rotate(45deg);
+  margin-top: -1.3vh;
+}
+
+#menuToggle:checked + .hamburgerMenu + .nav {
+  top: 0;
+  transform: scale(1);
+}

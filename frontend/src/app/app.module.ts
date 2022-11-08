@@ -7,12 +7,14 @@ import {FormsModule} from "@angular/forms";
 import {HttpClientModule} from "@angular/common/http";
 import {MachineInitComponent} from "./machine-init/machine-init.component";
 import { StatusComponent } from './status/status.component';
+import { NavigationComponent } from './navigation/navigation.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MachineInitComponent,
-    StatusComponent
+    StatusComponent,
+    NavigationComponent
   ],
     imports: [
         BrowserModule,

@@ -1,0 +1,17 @@
+<input id="menuToggle" type="checkbox">
+<label for="menuToggle" class="hamburgerMenu">
+  <div class="top-line"></div>
+  <div class="middle-line"></div>
+  <div class="bottom-line"></div>
+</label>
+
+<div class="nav">
+  <div class="nav-wrapper">
+    <nav>
+      <a href="/" class="{{activeIndex === 0 ? 'active' : ''}}">Machine control</a><br>
+      <a href="/status" class="{{activeIndex === 1 ? 'active' : ''}}">Status page</a><br>
+      <a href="/statistics" class="{{activeIndex === 2 ? 'active' : ''}}">Statistics</a><br>
+      <a href="/manual" class="{{activeIndex === 3 ? 'active' : ''}}">User manual</a>
+    </nav>
+  </div>
+</div>
