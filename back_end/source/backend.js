@@ -1,6 +1,7 @@
 const express = require('express');
 const { MongoClient } = require("mongodb");
 const bodyParser = require("body-parser");
+const fetch = require('node-fetch');
 const mqtt = require('mqtt');
 const cors = require('cors');
 
@@ -11,24 +12,25 @@ const http = require('http').createServer(app);
 
 
 /* mongoDB database connection */
-
 let db = null;
 const url = `mongodb://localhost:27017`;
 const dbName = 'cardSorting';
 let sortingDataCollection;
 
-MongoClient.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then((connection) => {
-    db = connection.db(dbName);
-    sortingDataCollection = db.collection('sortingData');
-    console.log('connected to database ' + dbName);
-});
+
+// MongoClient.connect(url, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+// }).then((connection) => {
+//     db = connection.db(dbName);
+//     sortingDataCollection = db.collection('sortingData');
+//     console.log('connected to database ' + dbName);
+// }).catch((err) => {
+//     console.log(err)
+// })
 
 
 /* mqtt client */
-
 const addr = process.argv.slice(2) && process.argv.slice(2).length > 0 ?
     'mqtt://' + process.argv.slice(2) + ':1883' : 'mqtt://192.168.1.10:1883';
 const mqttClient = mqtt.connect(addr);
@@ -52,35 +54,40 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use(cors({origin: ["http://localhost:4200"],}));
+app.use(cors({ origin: ["http://localhost:4200"], }));
 
 app.post('/start', (req, res, next) => {
     const { category, lowerBoundary, upperBoundary } = req.body;
     console.log("cat: " + category + ", lower: " + lowerBoundary + ", upper: " + upperBoundary);
     //TODO: check boundaries depending on category
-    mqttClient.publish(publishTopic, JSON.stringify({status: 'start'}));
+    mqttClient.publish(publishTopic, JSON.stringify({ status: 'start' }));
     return res.status(200).send({ message: "start response test" });
 });
 
 app.post('/stop', (req, res) => {
-    mqttClient.publish(publishTopic, JSON.stringify({status: 'stop'}));
+    mqttClient.publish(publishTopic, JSON.stringify({ status: 'stop' }));
     return res.status(200).send({ message: "stop response test" });
 });
 
 app.post('/recognize', (req, res, next) => {
-    //TODO: get pic from body, call ML model, etc.
-    let cardID = req.query.filepath;
-    // let option = req.query.option;
-    // if (req.query.parameter1 && req.query.parameter2) {
-    //   let parameter1 = req.query.parameter1
-    //   let parameter2 = req.query.parameter2
-    // }
+    //TODO: get pic from body.
+    let cardImage = req.query.filepath;
 
-    let childPython = spawn('python', ['get_match_and_sort.py', cardID, 0, 1, 2])
+    //TODO: to get the last sorting category, as well as the parameters if needed
+    let childPython = spawn('python', ['get_match_and_sort.py', cardImage])
 
-    childPython.stdout.on('data', (data) => {
-        console.log(data.toString());
-        res.send(data)
+    childPython.stdout.on('data', async (data) => {
+        const cardID = data.toString()
+        const options = {
+            "method": "GET",
+        };
+
+        const response = await fetch(`https://poromagia.com/store_manager/card_api/?access_token=4f02d606&id=${cardID}`, options)
+        const json = await response.json()
+        // console.log(`The id of the card is ${cardID})
+        // Time to put into categories
+
+        return res.json(json)
     });
 
     childPython.stderr.on('data', (data) => {
@@ -91,7 +98,7 @@ app.post('/recognize', (req, res, next) => {
         console.log(`child process exited with code ${code}`);
     });
 
-    return res.status(200).send({ message: "recognize response test" });
+    // return res.status(200).send({ message: "recognize response test" });
 });
 
 
