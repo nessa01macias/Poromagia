@@ -15,14 +15,15 @@ const http = require('http').createServer(app);
 let db = null;
 const url = `mongodb://localhost:27017`;
 const dbName = 'cardSorting';
-let sortingDataCollection;
+let sortingValuesCollection, resultCollection;
 
 MongoClient.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then((connection) => {
     db = connection.db(dbName);
-    sortingDataCollection = db.collection('sortingData');
+    sortingValuesCollection = db.collection('sortingData');
+    resultCollection = db.collection('resultData');
     console.log('connected to database ' + dbName);
 });
 
@@ -56,15 +57,38 @@ app.use(cors({origin: ["http://localhost:4200"],}));
 
 app.post('/start', (req, res, next) => {
     const { category, lowerBoundary, upperBoundary } = req.body;
-    console.log("cat: " + category + ", lower: " + lowerBoundary + ", upper: " + upperBoundary);
-    //TODO: check boundaries depending on category
-    mqttClient.publish(publishTopic, JSON.stringify({status: 'start'}));
-    return res.status(200).send({ message: "start response test" });
+    console.debug("cat: " + category + ", lower: " + lowerBoundary + ", upper: " + upperBoundary);
+    try {
+        if (lowerBoundary === undefined || lowerBoundary === null
+            || upperBoundary === undefined || upperBoundary === null) {
+            sortingValuesCollection.insertOne({start: (new Date()).getTime(), category});
+        } else {
+            if (lowerBoundary >= upperBoundary) {
+                res.status(400).send({error: 'cannot set sorting values to lower boundary ' + lowerBoundary
+                 + ' and upper boundary ' + upperBoundary + ' - lower boundary is greater than or equal to upper boundary'});
+            }
+            sortingValuesCollection.insertOne({start: (new Date()).getTime(), category, lowerBoundary, upperBoundary});
+        }
+        mqttClient.publish(publishTopic, JSON.stringify({status: 'start'}));
+        return res.status(200).send({ message: "successfully send start status" });
+    } catch (err) {
+        next('failed to insert sorting values in db: ' + err);
+    }
 });
 
-app.post('/stop', (req, res) => {
-    mqttClient.publish(publishTopic, JSON.stringify({status: 'stop'}));
-    return res.status(200).send({ message: "stop response test" });
+app.post('/stop', (req, res, next) => {
+    try {
+        sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
+            if (err) {
+                next('failed to get entry with latest start timestamp: ' + err);
+            }
+            sortingValuesCollection.updateOne({_id: items[0]._id}, {$set: {end: (new Date()).getTime()}});
+        });
+        mqttClient.publish(publishTopic, JSON.stringify({status: 'stop'}));
+        return res.status(200).send({ message: "successfully sent stop status" });
+    } catch(err) {
+        next('failed to update sorting data in db: ' + err);
+    }
 });
 
 app.post('/recognize', (req, res, next) => {
