@@ -11,6 +11,14 @@ const PORT = 3000;
 const http = require('http').createServer(app);
 
 
+/* websocket server */
+const io = require('socket.io')(http, {
+    cors: {
+        origins: ['http://localhost:4200']
+    }
+});
+
+
 /* mongoDB database connection */
 let db = null;
 const url = `mongodb://localhost:27017`;
@@ -106,11 +114,15 @@ function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
     }
 }
 
-function sendBoxValue(poromagiaData) {
+function sendBoxValue(poromagiaData, cardId) {
+    let error = null;
+    const price = poromagiaData.price;
+    const stock = poromagiaData.stock;
+    const wanted = poromagiaData.wanted; //TODO: test param not in poromagia data
     try {
         sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
             if (err) {
-                return 'failed to get entry with latest start timestamp: ' + err;
+                error = 'failed to get entry with latest start timestamp: ' + err;
             }
             const category = items[0].category;
             const lowerBoundary = category === 'wanted' ? null : items[0].lowerBoundary;
@@ -118,24 +130,33 @@ function sendBoxValue(poromagiaData) {
             let boxValue;
             switch (category) {
                 case 'Price':
-                    const price = poromagiaData.price;
                     boxValue = getBoxValue(price, lowerBoundary, upperBoundary);
                     break;
                 case 'Stock':
-                    const stock = poromagiaData.stock;
                     boxValue = getBoxValue(stock, lowerBoundary, upperBoundary);
                     break;
                 case 'Wanted':
-                    const wanted = poromagiaData.wanted;
                     boxValue = getBoxValue(wanted, lowerBoundary, upperBoundary);
             }
 
             if (boxValue < 1 || boxValue > 3) {
-                return 'failed to get price from Poromagia DB';
+                error = 'failed to get price from Poromagia DB';
+            } else {
+                io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue}));
+                resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
+                    box: boxValue, price, stock, wanted});
+                return {error: null, boxNumber: boxValue};
             }
         });
     } catch(err) {
-        return 'failed to get box value: ' + err;
+        error = 'failed to get box value: ' + err;
+    }
+
+    if (error) {
+        io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4}));
+        resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
+            box: 4, price, stock, wanted});
+        return {error: error, boxNumber: 4};
     }
     return null;
 }
@@ -156,26 +177,26 @@ app.post('/recognize', async (req, res, next) => {
         const poromagiaData = await response.json();
         console.debug("poromagia data: " + JSON.stringify(poromagiaData));
         if (!poromagiaData) {
-            next('failed to get data from poromagia database for id "' + cardID + '"');
+            return next('failed to get data from poromagia database for id "' + cardID + '"');
         }
 
-        const error = sendBoxValue(poromagiaData);
-        if (error) {
-            next(error);
-            //TODO: send box 4
+        const boxValueResponse = sendBoxValue(poromagiaData, cardID);
+        if (!boxValueResponse || boxValueResponse.error) {
+            return res.status(500).send({boxNumber: 4});
+            //return next(boxValueResponse.error);
         }
 
-        return res.status(200).send();
+        return res.status(200).send({boxNumber: boxValueResponse.boxNumber});
     });
 
     childPython.stderr.on('data', (data) => {
-        console.log('stderr:', data.toString());
-        //TODO
+        console.error('stderr:', data.toString());
+        return next('error in python child process: ' + data.toString());
+        //TODO: send error to frontend + send & save 4
     });
 
     childPython.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
-        //TODO
     });
 });
 
