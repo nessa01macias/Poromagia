@@ -103,22 +103,22 @@ function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
         return 4;
     }
     if (cardValue >= upperBoundary) {
-        console.log("box 3");
+        console.debug("box 3");
         return 3;
     } else if (cardValue < lowerBoundary) {
-        console.log("box 1");
+        console.debug("box 1");
         return 1;
     } else {
-        console.log("box 2");
+        console.debug("box 2");
         return 2;
     }
 }
 
-function sendBoxValue(poromagiaData, cardId) {
+function sendBoxValue(poromagiaData, cardId, res) {
     let error = null;
     const price = poromagiaData.price;
     const stock = poromagiaData.stock;
-    const wanted = poromagiaData.wanted; //TODO: test param not in poromagia data
+    const wanted = poromagiaData.wanted;
     try {
         sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
             if (err) {
@@ -143,25 +143,29 @@ function sendBoxValue(poromagiaData, cardId) {
                 error = 'failed to get price from Poromagia DB';
             } else {
                 io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue}));
-                resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
+                resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
                     box: boxValue, price, stock, wanted});
-                return {error: null, boxNumber: boxValue};
+                res.status(200).send({boxNumber: boxValue});
             }
         });
+        if (error) {
+            sendRecognizeError(error, price, stock, wanted, cardId, res);
+        }
     } catch(err) {
-        error = 'failed to get box value: ' + err;
+        sendRecognizeError('failed to get box value: ' + err, price, stock, wanted, cardId, res);
     }
-
-    if (error) {
-        io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4}));
-        resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
-            box: 4, price, stock, wanted});
-        return {error: error, boxNumber: 4};
-    }
-    return null;
 }
 
-app.post('/recognize', async (req, res, next) => {
+function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res) {
+    console.error("Error in recognize card: " + errorMessage);
+    io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4}));
+    resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
+        box: 4, price, stock, wanted, error: errorMessage});
+    io.emit('error', JSON.stringify({message: errorMessage}));
+    res.status(500).send({boxNumber: 4});
+}
+
+app.post('/recognize', async (req, res) => {
     //TODO: get pic from body and send to frontend
     let cardImage = req.query.filepath;
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage])
@@ -177,22 +181,18 @@ app.post('/recognize', async (req, res, next) => {
         const poromagiaData = await response.json();
         console.debug("poromagia data: " + JSON.stringify(poromagiaData));
         if (!poromagiaData) {
-            return next('failed to get data from poromagia database for id "' + cardID + '"');
+            sendRecognizeError('failed to get data from poromagia database for id "' + cardID + '"',
+                null, null, null, cardID, res);
         }
 
-        const boxValueResponse = sendBoxValue(poromagiaData, cardID);
-        if (!boxValueResponse || boxValueResponse.error) {
-            return res.status(500).send({boxNumber: 4});
-            //return next(boxValueResponse.error);
-        }
-
-        return res.status(200).send({boxNumber: boxValueResponse.boxNumber});
+        sendBoxValue(poromagiaData, cardID, res);
     });
 
     childPython.stderr.on('data', (data) => {
         console.error('stderr:', data.toString());
-        return next('error in python child process: ' + data.toString());
-        //TODO: send error to frontend + send & save 4
+        sendRecognizeError('error in python child process: ' + data.toString(),
+            null, null, null, null, res);
+        return res.status(500).send({boxNumber: 4});
     });
 
     childPython.on('close', (code) => {
