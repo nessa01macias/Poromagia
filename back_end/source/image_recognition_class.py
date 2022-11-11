@@ -80,6 +80,8 @@ class ImageMatch:
                     image_url = each_card["image_uris"]["large"]
                 except:  # large image does not exist
                     image_url = each_card["image_uris"]["normal"]
+
+                possible_match["card_link"] = image_url
                 original_img = Image.open(requests.get(image_url, stream=True).raw)
                 img = np.asarray(original_img)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -92,6 +94,7 @@ class ImageMatch:
 
     def get_the_matching_picture(self, image: int) -> int:
         similarities_percentages = []
+        the_final_match = {}
         result = self.requests_to_server()
         if result != 0:
             # print("The method for api used is", result)
@@ -102,21 +105,23 @@ class ImageMatch:
             if max(similarities_percentages) < 0.20:
                 return -1
             index = similarities_percentages.index(max(similarities_percentages))
-            return self.possible_matches[index]["card_id"]
+            the_final_match["card_id"] = self.possible_matches[index]["card_id"]
+            the_final_match["card_link"] = self.possible_matches[index]["card_link"]
+            return the_final_match
         return 0
 
-    def get_id(self):
-        the_id = self.get_the_matching_picture(self.get_original())
-        return the_id
+    def get_the_final_match(self):
+        the_final_match = self.get_the_matching_picture(self.get_original())
+        return the_final_match
 
     def __str__(self) -> str:
-        the_id = self.get_id()
-        if the_id == -1:
+        the_final_match = self.get_the_final_match()
+        if the_final_match['card_id'] == -1:
             return f"ID has not been found because the scryfall API probably does not have that picture"
-        elif the_id == 0:
+        elif the_final_match['card_id'] == 0:
             return f"ID has not been found because there was an error in the process"
 
-        return f"ID has been found: {the_id}"
+        return f"ID has been found: {the_final_match['card_id']}"
 
 
 if __name__ == '__main__':
