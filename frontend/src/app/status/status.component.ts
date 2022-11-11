@@ -16,6 +16,7 @@ export class StatusComponent implements OnInit {
   stock: string = '';
   wanted: string = '';
   boxNumber: number | undefined = undefined;
+  imageLink: string = '';
 
   constructor() {
     this.socket = io(environment.SOCKET_ENDPOINT);
@@ -25,6 +26,7 @@ export class StatusComponent implements OnInit {
       this.stock = parsedData.stock + ' ' + SortingCategory.STOCK.unit;
       this.wanted = parsedData.wanted + ' ' + SortingCategory.WANTED.unit;
       this.boxNumber = parsedData.box;
+      this.imageLink = parsedData.imageLink;
     });
   }
 

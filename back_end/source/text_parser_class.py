@@ -14,7 +14,7 @@ import langid
 import re
 import time
 
-reader_popular = easyocr.Reader(['en', 'es', 'fr', 'de', 'it', 'pt'])  # multiple languages
+reader_popular = easyocr.Reader(['en', 'es', 'fr', 'de', 'it', 'pt'], verbose=False)  # multiple languages
 
 
 class TextParser:
