@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import {io, Socket} from "socket.io-client";
+import {environment} from "../../environments/environment";
+import {SortingCategory} from "../_utils/SortingCategory";
 
 @Component({
   selector: 'app-status',
@@ -7,7 +10,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StatusComponent implements OnInit {
 
-  constructor() { }
+  socket: Socket | undefined;
+
+  price: string = '';
+  stock: string = '';
+  wanted: string = '';
+  boxNumber: number | undefined = undefined;
+
+  constructor() {
+    this.socket = io(environment.SOCKET_ENDPOINT);
+    this.socket.on('recognized card', (data: string) => {
+      const parsedData = JSON.parse(data);
+      this.price = parsedData.price + ' ' + SortingCategory.PRICE.unit;
+      this.stock = parsedData.stock + ' ' + SortingCategory.STOCK.unit;
+      this.wanted = parsedData.wanted + ' ' + SortingCategory.WANTED.unit;
+      this.boxNumber = parsedData.box;
+    });
+  }
 
   ngOnInit(): void {
   }

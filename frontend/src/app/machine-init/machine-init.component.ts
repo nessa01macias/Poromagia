@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {HttpService} from "../_services/http.service";
+import {SortingCategory} from "../_utils/SortingCategory";
 
-type Category = {
-  name: string;
-  selected: boolean;
-  configurable: boolean;
-  unit: string;
-}
 
 @Component({
   selector: 'app-machine-init',
@@ -15,11 +10,7 @@ type Category = {
 })
 export class MachineInitComponent implements OnInit {
 
-  sortingCategories: Category[] = [
-    {name: "Price", selected: true, configurable: true, unit: "€"},
-    {name: "Stock", selected: false, configurable: true, unit: "pieces"},
-    {name: "Wanted", selected: false, configurable: false, unit: ""}
-  ];
+  sortingCategories: SortingCategory[] = [SortingCategory.PRICE, SortingCategory.STOCK, SortingCategory.WANTED];
 
   lowerBorder: number = 0;
   upperBorder: number = 1;

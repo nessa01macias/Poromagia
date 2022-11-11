@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {Observable} from "rxjs";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -22,10 +21,6 @@ export class HttpService {
   pauseSorting(): void {
     this.http.post("http://localhost:3000/stop", '', httpOptions)
       .subscribe(res => console.debug("pause sorting response: " + JSON.stringify(res)));
-  }
-
-  recognizePic(): Observable<any> {
-    return this.http.post("http://localhost:3000/recognize", '', httpOptions);
   }
 
 }

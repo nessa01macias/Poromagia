@@ -11,21 +11,29 @@ const PORT = 3000;
 const http = require('http').createServer(app);
 
 
-/* mongoDB database connection */
-// let db = null;
-// const url = `mongodb://localhost:27017`;
-// const dbName = 'cardSorting';
-// let sortingValuesCollection, resultCollection;
+/* websocket server */
+const io = require('socket.io')(http, {
+    cors: {
+        origins: ['http://localhost:4200']
+    }
+});
 
-// MongoClient.connect(url, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-// }).then((connection) => {
-//     db = connection.db(dbName);
-//     sortingValuesCollection = db.collection('sortingData');
-//     resultCollection = db.collection('resultData');
-//     console.log('connected to database ' + dbName);
-// });
+
+/* mongoDB database connection */
+let db = null;
+const url = `mongodb://localhost:27017`;
+const dbName = 'cardSorting';
+let sortingValuesCollection, resultCollection;
+
+MongoClient.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then((connection) => {
+    db = connection.db(dbName);
+    sortingValuesCollection = db.collection('sortingData');
+    resultCollection = db.collection('resultData');
+    console.log('connected to database ' + dbName);
+});
 
 
 /* mqtt client */
@@ -47,7 +55,6 @@ mqttClient.on('connect', () => {
 /* http routes */
 
 const { spawn } = require('child_process');
-const { json } = require('body-parser');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -93,37 +100,109 @@ app.post('/stop', (req, res, next) => {
     }
 });
 
-app.post('/recognize', (req, res, next) => {
-    //TODO: get pic from body.
-    let cardImage = req.query.filepath;
+function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
+    if (cardValue === undefined || cardValue === null) {
+        return 4;
+    }
+    if (cardValue >= upperBoundary) {
+        console.debug("box 3");
+        return 3;
+    } else if (cardValue < lowerBoundary) {
+        console.debug("box 1");
+        return 1;
+    } else {
+        console.debug("box 2");
+        return 2;
+    }
+}
 
-    //TODO: to get the last sorting category, as well as the parameters if needed
-    let childPython = spawn('python', ['get_match_and_sort.py', cardImage])
+function sendBoxValue(poromagiaData, cardId, res) {
+    let error = null;
+    const price = poromagiaData.price;
+    const stock = poromagiaData.stock;
+    const wanted = poromagiaData.wanted;
+    try {
+        sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
+            if (err) {
+                error = 'failed to get entry with latest start timestamp: ' + err;
+            }
+            const category = items[0].category;
+            const lowerBoundary = category === 'wanted' ? null : items[0].lowerBoundary;
+            const upperBoundary = category === 'wanted' ? null : items[0].upperBoundary;
+            let boxValue;
+            switch (category) {
+                case 'Price':
+                    boxValue = getBoxValue(price, lowerBoundary, upperBoundary);
+                    break;
+                case 'Stock':
+                    boxValue = getBoxValue(stock, lowerBoundary, upperBoundary);
+                    break;
+                case 'Wanted':
+                    boxValue = getBoxValue(wanted, lowerBoundary, upperBoundary);
+            }
+
+            if (boxValue < 1 || boxValue > 3) {
+                error = 'failed to get price from Poromagia DB';
+            } else {
+                //TODO: send recognized pic id
+                io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue}));
+                resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
+                    box: boxValue, price, stock, wanted});
+                res.status(200).send({boxNumber: boxValue});
+            }
+        });
+        if (error) {
+            sendRecognizeError(error, price, stock, wanted, cardId, res);
+        }
+    } catch(err) {
+        sendRecognizeError('failed to get box value: ' + err, price, stock, wanted, cardId, res);
+    }
+}
+
+function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res) {
+    console.error("Error in recognize card: " + errorMessage);
+    io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4}));
+    resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
+        box: 4, price, stock, wanted, error: errorMessage});
+    io.emit('error', JSON.stringify({message: errorMessage}));
+    res.status(500).send({boxNumber: 4});
+}
+
+app.post('/recognize', async (req, res) => {
+    //TODO: get pic from body and send to frontend
+    let cardImage = req.query.filepath;
+    const childPython = spawn('python', ['get_match_and_sort.py', cardImage])
 
     childPython.stdout.on('data', async (data) => {
-        const the_final_match = JSON.parse(data.toString())
+        const recognizedData = JSON.parse(data.toString());
+        const cardID = recognizedData["card_id"];
+        console.log("test: " + recognizedData.card_id)
 
+        // get data from poromagia database
         const options = {
             "method": "GET",
         };
+        const response = await fetch(`https://poromagia.com/store_manager/card_api/?access_token=4f02d606&id=${cardID}`, options)
+        const poromagiaData = await response.json();
+        console.debug("poromagia data: " + JSON.stringify(poromagiaData));
+        if (!poromagiaData) {
+            sendRecognizeError('failed to get data from poromagia database for id "' + cardID + '"',
+                null, null, null, cardID, res);
+        }
 
-        const response = await fetch(`https://poromagia.com/store_manager/card_api/?access_token=4f02d606&id=${the_final_match["card_id"]}`, options)
-        const json = await response.json()
-        // console.log(`The id of the card is ${cardID})
-        // Time to put into categories
-
-        return res.json(json)
+        sendBoxValue(poromagiaData, cardID, res);
     });
 
     childPython.stderr.on('data', (data) => {
-        console.log('stderr:', data.toString());
+        console.error('stderr:', data.toString());
+        sendRecognizeError('error in python child process: ' + data.toString(),
+            null, null, null, null, res);
+        return res.status(500).send({boxNumber: 4});
     });
 
     childPython.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
     });
-
-    // return res.status(200).send({ message: "recognize response test" });
 });
 
 
