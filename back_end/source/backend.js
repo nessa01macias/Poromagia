@@ -142,6 +142,7 @@ function sendBoxValue(poromagiaData, cardId, res) {
             if (boxValue < 1 || boxValue > 3) {
                 error = 'failed to get price from Poromagia DB';
             } else {
+                //TODO: send recognized pic id
                 io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue}));
                 resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
                     box: boxValue, price, stock, wanted});

@@ -12,10 +12,10 @@
     </div>
     <div class="cardData">
       <h3>Card data:</h3>
-      <p>Price: ...</p>
-      <p>Stock: ...</p>
-      <p>Wanted: ...</p>
-      <p>-> Box 1</p>
+      <p>Price: {{price !== undefined ? price : ''}}</p>
+      <p>Stock: {{stock !== undefined ? stock : ''}}</p>
+      <p>Wanted: {{wanted !== undefined ? wanted : ''}}</p>
+      <p>-> Box {{boxNumber !== undefined ? boxNumber : ''}}</p>
     </div>
   </div>
   <div class="boxes">
