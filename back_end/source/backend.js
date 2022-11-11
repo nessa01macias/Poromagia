@@ -12,20 +12,20 @@ const http = require('http').createServer(app);
 
 
 /* mongoDB database connection */
-let db = null;
-const url = `mongodb://localhost:27017`;
-const dbName = 'cardSorting';
-let sortingValuesCollection, resultCollection;
+// let db = null;
+// const url = `mongodb://localhost:27017`;
+// const dbName = 'cardSorting';
+// let sortingValuesCollection, resultCollection;
 
-MongoClient.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then((connection) => {
-    db = connection.db(dbName);
-    sortingValuesCollection = db.collection('sortingData');
-    resultCollection = db.collection('resultData');
-    console.log('connected to database ' + dbName);
-});
+// MongoClient.connect(url, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+// }).then((connection) => {
+//     db = connection.db(dbName);
+//     sortingValuesCollection = db.collection('sortingData');
+//     resultCollection = db.collection('resultData');
+//     console.log('connected to database ' + dbName);
+// });
 
 
 /* mqtt client */
@@ -47,6 +47,7 @@ mqttClient.on('connect', () => {
 /* http routes */
 
 const { spawn } = require('child_process');
+const { json } = require('body-parser');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -60,15 +61,17 @@ app.post('/start', (req, res, next) => {
     try {
         if (lowerBoundary === undefined || lowerBoundary === null
             || upperBoundary === undefined || upperBoundary === null) {
-            sortingValuesCollection.insertOne({start: (new Date()).getTime(), category});
+            sortingValuesCollection.insertOne({ start: (new Date()).getTime(), category });
         } else {
             if (lowerBoundary >= upperBoundary) {
-                res.status(400).send({error: 'cannot set sorting values to lower boundary ' + lowerBoundary
-                 + ' and upper boundary ' + upperBoundary + ' - lower boundary is greater than or equal to upper boundary'});
+                res.status(400).send({
+                    error: 'cannot set sorting values to lower boundary ' + lowerBoundary
+                        + ' and upper boundary ' + upperBoundary + ' - lower boundary is greater than or equal to upper boundary'
+                });
             }
-            sortingValuesCollection.insertOne({start: (new Date()).getTime(), category, lowerBoundary, upperBoundary});
+            sortingValuesCollection.insertOne({ start: (new Date()).getTime(), category, lowerBoundary, upperBoundary });
         }
-        mqttClient.publish(publishTopic, JSON.stringify({status: 'start'}));
+        mqttClient.publish(publishTopic, JSON.stringify({ status: 'start' }));
         return res.status(200).send({ message: "successfully send start status" });
     } catch (err) {
         next('failed to insert sorting values in db: ' + err);
@@ -77,15 +80,15 @@ app.post('/start', (req, res, next) => {
 
 app.post('/stop', (req, res, next) => {
     try {
-        sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
+        sortingValuesCollection.find({}).sort({ start: -1 }).toArray((err, items) => {
             if (err) {
                 next('failed to get entry with latest start timestamp: ' + err);
             }
-            sortingValuesCollection.updateOne({_id: items[0]._id}, {$set: {end: (new Date()).getTime()}});
+            sortingValuesCollection.updateOne({ _id: items[0]._id }, { $set: { end: (new Date()).getTime() } });
         });
-        mqttClient.publish(publishTopic, JSON.stringify({status: 'stop'}));
+        mqttClient.publish(publishTopic, JSON.stringify({ status: 'stop' }));
         return res.status(200).send({ message: "successfully sent stop status" });
-    } catch(err) {
+    } catch (err) {
         next('failed to update sorting data in db: ' + err);
     }
 });
@@ -98,12 +101,13 @@ app.post('/recognize', (req, res, next) => {
     let childPython = spawn('python', ['get_match_and_sort.py', cardImage])
 
     childPython.stdout.on('data', async (data) => {
-        const cardID = data.toString()
+        const the_final_match = JSON.parse(data.toString())
+
         const options = {
             "method": "GET",
         };
 
-        const response = await fetch(`https://poromagia.com/store_manager/card_api/?access_token=4f02d606&id=${cardID}`, options)
+        const response = await fetch(`https://poromagia.com/store_manager/card_api/?access_token=4f02d606&id=${the_final_match["card_id"]}`, options)
         const json = await response.json()
         // console.log(`The id of the card is ${cardID})
         // Time to put into categories

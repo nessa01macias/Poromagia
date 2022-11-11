@@ -1,5 +1,6 @@
 from text_parser_class import TextParser
 from image_recognition_class import ImageMatch
+import json
 import sys
 
 
@@ -12,11 +13,11 @@ def get_match_and_sort():
                              parser.parse_year())
     # print(parser)
     # print(recognition)
-    image_match_id = recognition.get_id()
-    if image_match_id == 0 or image_match_id == -1:
+    the_final_match = recognition.get_the_final_match()
+    if the_final_match['card_id'] == 0 or the_final_match['card_id'] == -1:
         print("0")
     else:
-        print(image_match_id)
+        print(json.dumps(the_final_match))
     
     # api = 'https://poromagia.com/store_manager/card_api/?access_token=4f02d606&id=' + image_match_id
     # response = requests.get(api)
