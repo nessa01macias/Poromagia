@@ -42,22 +42,8 @@
   </div>
 
   <div class="numberKeyboard keyboardDisplay" *ngIf="keyboardDisplayed">
-    <div class="keyboardLine keyboardDisplay"> <!--TODO: loop-->
-      <button (click)="enterKeyboardValue('1')" class="keyboardDisplay">1</button>
-      <button (click)="enterKeyboardValue('2')" class="keyboardDisplay">2</button>
-      <button (click)="enterKeyboardValue('3')" class="keyboardDisplay">3</button>
-      <button (click)="enterKeyboardValue('4')" class="keyboardDisplay">4</button>
-      <button (click)="enterKeyboardValue('5')" class="keyboardDisplay">5</button>
-      <button (click)="enterKeyboardValue('6')" class="keyboardDisplay">6</button>
-      <button (click)="enterKeyboardValue('7')" class="keyboardDisplay">7</button>
-    </div>
-    <div class="keyboardLine keyboardDisplay">
-      <button (click)="enterKeyboardValue('8')" class="keyboardDisplay">8</button>
-      <button (click)="enterKeyboardValue('9')" class="keyboardDisplay">9</button>
-      <button (click)="enterKeyboardValue('0')" class="keyboardDisplay">0</button>
-      <button (click)="enterKeyboardValue('.')" class="keyboardDisplay">.</button>
-      <button (click)="enterKeyboardValue('Delete')" class="keyboardDisplay">Delete</button>
-      <button (click)="enterKeyboardValue('Ok')" class="keyboardDisplay">Ok</button>
+    <div *ngFor="let keyboardLine of keyboardValues" class="keyboardLine keyboardDisplay">
+      <button *ngFor="let keyValue of keyboardLine" (click)="enterKeyboardValue(keyValue)" class="keyboardDisplay">{{keyValue}}</button>
     </div>
   </div>
 </main>

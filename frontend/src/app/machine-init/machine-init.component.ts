@@ -20,6 +20,7 @@ export class MachineInitComponent implements OnInit {
   keyboardDisplayed: boolean = false;
   editingLowerBoundary: boolean = false;
   editingUpperBoundary: boolean = false;
+  keyboardValues: string[][] = [['1', '2', '3', '4', '5', '6', '7'], ['8', '9', '0', '.', 'Delete', 'Ok']];
 
   constructor(private httpService: HttpService) { }
 
@@ -42,6 +43,10 @@ export class MachineInitComponent implements OnInit {
   startSorting(): void {
     const selectedCategory = this.sortingCategories[this.selectedCatIndex];
     if (selectedCategory) {
+      // make sure boundary values are numbers before sending http request
+      this.lowerBoundary = (this.lowerBoundary.match(/^[0-9]*(?:\.[0-9]*)?/g) || []).join('');
+      this.upperBoundary = (this.upperBoundary.match(/^[0-9]*(?:\.[0-9]*)?/g) || []).join('');
+
       this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
       this.machineStopped = false;
     } else {
