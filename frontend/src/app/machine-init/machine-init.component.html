@@ -11,11 +11,18 @@
     <div class="boundaryValues">
       <div class="cardBox">1</div>
       <div><=</div>
-      <span><input type="number" id="lowerBorder" [(ngModel)]="lowerBorder"> {{sortingCategories[selectedCatIndex].unit}}</span>
+      <span>
+        <input type="text" id="lowerBorder" [(ngModel)]="lowerBoundary" (click)="editLowerBoundary()"
+               class="{{editingLowerBoundary ? 'editMode keyboardDisplay' : 'keyboardDisplay'}}" (keydown)="handleLowerBoundaryInput()">
+        {{sortingCategories[selectedCatIndex].unit}}
+      </span>
       <div><</div>
       <div class="cardBox">2</div>
       <div><=</div>
-      <span><input type="number" id="upperBorder" [(ngModel)]="upperBorder"> {{sortingCategories[selectedCatIndex].unit}}</span>
+      <span><input type="text" id="upperBorder" [(ngModel)]="upperBoundary" (click)="editUpperBoundary()"
+                   class="{{editingUpperBoundary ? 'editMode keyboardDisplay' : 'keyboardDisplay'}}" (keydown)="handleUpperBoundaryInput()">
+        {{sortingCategories[selectedCatIndex].unit}}
+      </span>
       <div><</div>
       <div class="cardBox">3</div>
     </div>
@@ -32,5 +39,25 @@
   <div class="submitButtons">
     <button *ngIf="machineStopped" (click)="startSorting()" class="startStopButton">Start</button>
     <button *ngIf="!machineStopped" (click)="pauseSorting()" class="startStopButton">Stop</button>
+  </div>
+
+  <div class="numberKeyboard keyboardDisplay" *ngIf="keyboardDisplayed">
+    <div class="keyboardLine keyboardDisplay"> <!--TODO: loop-->
+      <button (click)="enterKeyboardValue('1')" class="keyboardDisplay">1</button>
+      <button (click)="enterKeyboardValue('2')" class="keyboardDisplay">2</button>
+      <button (click)="enterKeyboardValue('3')" class="keyboardDisplay">3</button>
+      <button (click)="enterKeyboardValue('4')" class="keyboardDisplay">4</button>
+      <button (click)="enterKeyboardValue('5')" class="keyboardDisplay">5</button>
+      <button (click)="enterKeyboardValue('6')" class="keyboardDisplay">6</button>
+      <button (click)="enterKeyboardValue('7')" class="keyboardDisplay">7</button>
+    </div>
+    <div class="keyboardLine keyboardDisplay">
+      <button (click)="enterKeyboardValue('8')" class="keyboardDisplay">8</button>
+      <button (click)="enterKeyboardValue('9')" class="keyboardDisplay">9</button>
+      <button (click)="enterKeyboardValue('0')" class="keyboardDisplay">0</button>
+      <button (click)="enterKeyboardValue('.')" class="keyboardDisplay">.</button>
+      <button (click)="enterKeyboardValue('Delete')" class="keyboardDisplay">Delete</button>
+      <button (click)="enterKeyboardValue('Ok')" class="keyboardDisplay">Ok</button>
+    </div>
   </div>
 </main>

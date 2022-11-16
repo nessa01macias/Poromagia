@@ -36,6 +36,11 @@ h2 {
     padding: 1vw;
   }
 
+  .editMode {
+    background-color: rgba(107, 158, 176, 0.3);
+    border: 3px solid #6b9eb0;
+  }
+
   div {
     align-self: center;
     display: inline;
@@ -59,5 +64,34 @@ h2 {
 
   .startStopButton {
     width: 50vw;
+  }
+}
+
+.numberKeyboard {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 8vh;
+  left: 3.5vw;
+  margin: auto;
+  opacity: 0.9;
+  padding: 1vw;
+
+  background: rgb(199, 199, 199);
+  border-radius: 10px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10.7px);
+  -webkit-backdrop-filter: blur(10.7px);
+  border: 1px solid rgba(174, 174, 174, 0.26);
+
+  .keyboardLine {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  button {
+    width: 11vw;
+    padding: 1vw;
   }
 }
