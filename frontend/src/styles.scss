@@ -11,7 +11,7 @@ body {
 
 /* buttons */
 
-button{
+button {
   text-align: center;
   padding: 3vh 6vw;
   margin: 1vw;
@@ -27,3 +27,6 @@ button:hover {
   background-color: #93bbc9;
   cursor: pointer;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -1,3 +1,8 @@
-<div *ngIf="messagesService.getMessages().length">
-  <div class="message" *ngFor='let message of messagesService.getMessages()'>{{message}}</div>
+<div *ngIf="messagesService.getMessages().size > 0" class="messagesContainer">
+  <div class="message" *ngFor='let messageKey of messagesService.getMessages().keys()'>
+    <div class="closeButton" (click)="closeMessage(messageKey)">
+      <mat-icon>close</mat-icon>
+    </div>
+    {{messagesService.getMessages().get(messageKey)}}
+  </div>
 </div>

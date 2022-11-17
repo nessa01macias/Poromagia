@@ -1,14 +1,30 @@
-.message {
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
   position: fixed;
-  top: 12vh;
+  top: 5vh;
   left: 15vw;
-  background-color: darkred;
-  color: #FFFFFF;
-  padding: 0.7em;
-  width: 70vw;
-  text-align: center;
-  text-decoration: none;
-  overflow: hidden;
-  border-radius: 1em;
-  z-index: 1;
+
+  .message {
+    background-color: darkred;
+    color: #FFFFFF;
+    padding: 4vh;
+    margin: 0.5vh;
+    width: 70vw;
+    text-align: center;
+    text-decoration: none;
+    overflow: hidden;
+    border-radius: 1em;
+    z-index: 1;
+    overflow-wrap: break-word;
+  }
+
+  .closeButton {
+    position: relative;
+    right: -4vh;
+    top: -4vh;
+    margin: 1vh;
+    float: right;
+    cursor: pointer;
+  }
 }

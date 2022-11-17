@@ -29,7 +29,6 @@ export class MachineInitComponent implements OnInit {
     document.addEventListener('click', (event: MouseEvent) => {
       this.hideKeyboard(event);
     });
-    this.messageService.add("test message 123", 4000);
   }
 
   selectCategory(categoryName: string): void {
@@ -95,7 +94,7 @@ export class MachineInitComponent implements OnInit {
         this.keyboardDisplayed = false;
         break;
       default:
-        this.messageService.add("invalid keyboard value", 2000);
+        this.messageService.add("Invalid keyboard value", 2000);
     }
     if (this.editingLowerBoundary) this.lowerBoundary = editedValue;
     else if (this.editingUpperBoundary) this.upperBoundary = editedValue;

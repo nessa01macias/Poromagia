@@ -9,6 +9,7 @@ import {MachineInitComponent} from "./machine-init/machine-init.component";
 import { StatusComponent } from './status/status.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { MessageComponent } from './message/message.component';
+import {MatIconModule} from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { MessageComponent } from './message/message.component';
         BrowserModule,
         AppRoutingModule,
         FormsModule,
-        HttpClientModule
+        HttpClientModule,
+        MatIconModule
     ],
   providers: [],
   bootstrap: [AppComponent]
