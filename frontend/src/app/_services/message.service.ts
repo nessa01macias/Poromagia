@@ -5,16 +5,25 @@ import { Injectable } from '@angular/core';
 })
 export class MessageService {
 
-  private messages: string[] = [];
+  private messages: Map<number, string> = new Map<number, string>();
 
   add(message: string, displayTime: number): void {
-    this.messages.push(message);
+    let messageKey: number = 0;
+    if (this.messages.size > 0) {
+      messageKey = Math.max(...this.messages.keys()) + 1
+    }
+    this.messages.set(messageKey, message);
+
     setTimeout(() => {
-      this.messages = [];
+      this.remove(messageKey);
     }, displayTime);
   }
 
-  getMessages(): string[] {
+  remove(messageKey: number): void {
+    this.messages.delete(messageKey);
+  }
+
+  getMessages(): Map<number, string> {
     return this.messages;
   }
 }
