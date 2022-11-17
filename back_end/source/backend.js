@@ -196,7 +196,7 @@ app.post('/recognize', async (req, res) => {
         console.error('stderr:', data.toString());
         sendRecognizeError('error in python child process: ' + data.toString(),
             null, null, null, null, res, null);
-        return res.status(500).send({boxNumber: 4});
+        childPython.stderr.removeAllListeners();
     });
 
     childPython.on('close', (code) => {
