@@ -11,6 +11,10 @@
   .arrow {
     width: 15vw;
     text-align: center;
+
+    mat-icon {
+      transform: scale(2);
+    }
   }
 
   .cardData {
