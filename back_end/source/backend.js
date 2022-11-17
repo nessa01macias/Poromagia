@@ -118,6 +118,7 @@ function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
 
 function sendBoxValue(poromagiaData, cardId, res, cardLink) {
     let error = null;
+    let userError = null;
     const price = poromagiaData.price;
     const stock = poromagiaData.stock;
     const wanted = poromagiaData.wanted;
@@ -125,6 +126,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
         sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
             if (err) {
                 error = 'failed to get entry with latest start timestamp: ' + err;
+                userError = 'Failed to get entry with latest start timestamp';
             }
             const category = items[0].category;
             const lowerBoundary = category === 'wanted' ? null : items[0].lowerBoundary;
@@ -151,19 +153,23 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
             }
         });
         if (error) {
+            if (userError) {
+                sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink, userError);
+            }
             sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink);
         }
     } catch(err) {
-        sendRecognizeError('failed to get box value: ' + err, price, stock, wanted, cardId, res, cardLink);
+        sendRecognizeError('failed to get box value: ' + err,
+            price, stock, wanted, cardId, res, cardLink, 'Failed to get box value');
     }
 }
 
-function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink) {
+function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
     io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4, imageLink: cardLink}));
     resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
         box: 4, price, stock, wanted, error: errorMessage});
-    io.emit('error', JSON.stringify({message: errorMessage}));
+    io.emit('error', JSON.stringify({message: errorMessageForUser}));
     res.status(500).send({boxNumber: 4});
 }
 
@@ -185,7 +191,7 @@ app.post('/recognize', async (req, res) => {
         const poromagiaData = await response.json();
         console.debug("poromagia data: " + JSON.stringify(poromagiaData));
         if (!poromagiaData) {
-            sendRecognizeError('failed to get data from poromagia database for id "' + cardID + '"',
+            sendRecognizeError('Failed to get data from poromagia database for id "' + cardID + '"',
                 null, null, null, cardID, res, cardLink);
         }
 
@@ -194,8 +200,8 @@ app.post('/recognize', async (req, res) => {
 
     childPython.stderr.on('data', (data) => {
         console.error('stderr:', data.toString());
-        sendRecognizeError('error in python child process: ' + data.toString(),
-            null, null, null, null, res, null);
+        sendRecognizeError('error in python child process: ' + data.toString(), null, null,
+            null, null, res, null, 'An error uccured while trying to recognize the card');
         childPython.stderr.removeAllListeners();
     });
 
