@@ -8,13 +8,15 @@ import {HttpClientModule} from "@angular/common/http";
 import {MachineInitComponent} from "./machine-init/machine-init.component";
 import { StatusComponent } from './status/status.component';
 import { NavigationComponent } from './navigation/navigation.component';
+import { MessageComponent } from './message/message.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MachineInitComponent,
     StatusComponent,
-    NavigationComponent
+    NavigationComponent,
+    MessageComponent
   ],
     imports: [
         BrowserModule,

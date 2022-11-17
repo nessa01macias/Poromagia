@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {HttpService} from "../_services/http.service";
 import {SortingCategory} from "../_utils/SortingCategory";
+import {MessageService} from "../_services/message.service";
 
 
 @Component({
@@ -22,12 +23,13 @@ export class MachineInitComponent implements OnInit {
   editingUpperBoundary: boolean = false;
   keyboardValues: string[][] = [['1', '2', '3', '4', '5', '6', '7'], ['8', '9', '0', '.', 'Delete', 'Ok']];
 
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService, private messageService: MessageService) { }
 
   ngOnInit(): void {
     document.addEventListener('click', (event: MouseEvent) => {
       this.hideKeyboard(event);
     });
+    this.messageService.add("test message 123", 4000);
   }
 
   selectCategory(categoryName: string): void {
@@ -50,7 +52,7 @@ export class MachineInitComponent implements OnInit {
       this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
       this.machineStopped = false;
     } else {
-      //TODO: error
+      this.messageService.add("Cannot start sorting - no sorting category selected", 5000);
     }
   }
 
@@ -91,6 +93,9 @@ export class MachineInitComponent implements OnInit {
         this.editingLowerBoundary = false;
         this.editingUpperBoundary = false;
         this.keyboardDisplayed = false;
+        break;
+      default:
+        this.messageService.add("invalid keyboard value", 2000);
     }
     if (this.editingLowerBoundary) this.lowerBoundary = editedValue;
     else if (this.editingUpperBoundary) this.upperBoundary = editedValue;
