@@ -10,6 +10,8 @@ import { StatusComponent } from './status/status.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { MessageComponent } from './message/message.component';
 import {MatIconModule} from '@angular/material/icon';
+import { ManualComponent } from './manual/manual.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import {MatIconModule} from '@angular/material/icon';
     MachineInitComponent,
     StatusComponent,
     NavigationComponent,
-    MessageComponent
+    MessageComponent,
+    ManualComponent,
+    StatisticsComponent
   ],
     imports: [
         BrowserModule,
