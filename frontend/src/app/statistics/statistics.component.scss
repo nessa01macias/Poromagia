@@ -1,0 +1,51 @@
+.selectorDropdown, .openSelectorDropdown {
+  width: 100%;
+  height: 13vh;
+  padding-top: 2vh;
+  background-color: #ababab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  mat-icon {
+    transform: scale(2);
+    cursor: pointer;
+  }
+}
+
+.openSelectorDropdown {
+  height: 90vh;
+  padding-top: 6vh;
+  padding-bottom: 4vh;
+
+  h3 {
+    text-align: left;
+    margin-left: 2vw;
+  }
+
+  .typeSelection {
+    height: 25vh;
+    width: 100vw;
+
+    button {
+      padding: 1vw;
+    }
+
+    .selected {
+      font-weight: bold;
+      background-color: #6b9eb0;
+    }
+  }
+
+  .dateSelection {
+    height: 40vh;
+    width: 100vw;
+  }
+
+  .submitButton {
+    width: 100%;
+    margin: 3vh 5vw 3vh 0;
+    text-align: right;
+  }
+}
