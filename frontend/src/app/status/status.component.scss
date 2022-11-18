@@ -24,15 +24,19 @@
     background-color: #6b9eb0;
   }
 
-  .recognizedPic {
+  .recognizedPic, .takenPic {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 25vw;
+    height: 80vh;
+    margin: 2vw;
 
     .loadingSpinner {
       display: inline-block;
       width: 20vw;
       height: 20vw;
+      margin-top: 12vh;
     }
     .loadingSpinner div {
       animation: loadingSpinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
