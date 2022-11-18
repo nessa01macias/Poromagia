@@ -2,7 +2,7 @@
   width: 100%;
   height: 13vh;
   padding-top: 2vh;
-  background-color: #ababab;
+  background-color: #d3d3d3;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,8 +15,8 @@
 }
 
 .openSelectorDropdown {
-  height: 90vh;
-  padding-top: 6vh;
+  height: 96vh;
+  padding-top: 0;
   padding-bottom: 4vh;
 
   h3 {
@@ -24,8 +24,38 @@
     margin-left: 2vw;
   }
 
-  .typeSelection {
+  .dateSelection {
     height: 25vh;
+    width: 100vw;
+
+    .dateSelectors {
+      margin-left: 4vw;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+
+      input[type="date"] {
+        background-color: #93bbc9;
+        padding: 1vw;
+        font-size: inherit;
+        border-radius: 10px;
+        margin: 0 10vw 0 1vw;
+        border: 1px solid black;
+        outline: 1px solid black;
+      }
+
+      ::-webkit-calendar-picker-indicator {
+        background-color: #ffffff;
+        padding: 5px;
+        cursor: pointer;
+        border-radius: 3px;
+      }
+    }
+  }
+
+  .typeSelection {
+    height: 50vh;
     width: 100vw;
 
     button {
@@ -38,14 +68,9 @@
     }
   }
 
-  .dateSelection {
-    height: 40vh;
-    width: 100vw;
-  }
-
   .submitButton {
     width: 100%;
-    margin: 3vh 5vw 3vh 0;
+    margin: 3vh 5vw 0 0;
     text-align: right;
   }
 }

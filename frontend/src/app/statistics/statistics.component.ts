@@ -17,8 +17,12 @@ export class StatisticsComponent implements OnInit {
   diagramTypes: DiagramType[] = [
     {id: 0, text: 'Number of sorted cards', selected: false},
     {id: 1, text: 'Number of not recognized cards', selected: false},
-    {id: 2, text: 'Selected category', selected: false}
+    {id: 2, text: 'Selected category', selected: false},
+    {id: 3, text: 'Number of cards in boxes', selected: false},
   ];
+
+  fromDate: Date | undefined = undefined;
+  toDate: Date | undefined = undefined;
 
   constructor() { }
 

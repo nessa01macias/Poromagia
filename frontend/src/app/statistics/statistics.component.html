@@ -5,17 +5,19 @@
     <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_down</mat-icon>
   </div>
   <div class="openSelectorDropdown" *ngIf="dropdownOpen">
+    <div class="dateSelection">
+      <h3>Select the period of time:</h3>
+      <div class="dateSelectors">
+        <label for="fromDate">From: </label>
+        <input type="date" id="fromDate" [(ngModel)]="fromDate">
+        <label for="toDate">to: </label>
+        <input type="date" id="toDate" [(ngModel)]="toDate">
+      </div>
+    </div>
     <div class="typeSelection">
       <h3>Select a diagram:</h3>
       <button *ngFor="let type of diagramTypes" class="{{type.selected ? 'selected' : ''}}"
               (click)="selectDiagramType(type.id)">{{type.text}}</button>
-    </div>
-    <div class="dateSelection">
-      <h3>Select the period of time:</h3>
-      <label for="fromDate">From: </label>
-      <input type="date" id="fromDate">
-      <label for="toDate">to: </label>
-      <input type="date" id="toDate">
     </div>
     <div class="submitButton"><button>Show graph</button></div>
     <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_up</mat-icon>
