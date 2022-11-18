@@ -23,6 +23,95 @@
     padding: 2vw;
     background-color: #6b9eb0;
   }
+
+  .recognizedPic {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .loadingSpinner {
+      display: inline-block;
+      width: 20vw;
+      height: 20vw;
+    }
+    .loadingSpinner div {
+      animation: loadingSpinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      transform-origin: 8vw 8vw;
+    }
+    .loadingSpinner div:after {
+      content: " ";
+      position: absolute;
+      width: 1.2vw;
+      height: 1.2vw;
+      border-radius: 50%;
+      background: #6b9eb0;
+      margin: -4px 0 0 -4px;
+    }
+    .loadingSpinner div:nth-child(1) {
+      animation-delay: -0.036s;
+    }
+    .loadingSpinner div:nth-child(1):after {
+      top: 12.8vw;
+      left: 12.8vw;
+    }
+    .loadingSpinner div:nth-child(2) {
+      animation-delay: -0.072s;
+    }
+    .loadingSpinner div:nth-child(2):after {
+      top: 13.82vw;
+      left: 11.38vw;
+    }
+    .loadingSpinner div:nth-child(3) {
+      animation-delay: -0.108s;
+    }
+    .loadingSpinner div:nth-child(3):after {
+      top: 14.42vw;
+      left: 9.75vw;
+    }
+    .loadingSpinner div:nth-child(4) {
+      animation-delay: -0.144s;
+    }
+    .loadingSpinner div:nth-child(4):after {
+      top: 14.63vw;
+      left: 8.13vw;
+    }
+    .loadingSpinner div:nth-child(5) {
+      animation-delay: -0.18s;
+    }
+    .loadingSpinner div:nth-child(5):after {
+      top: 14.42vw;
+      left: 6.50vw;
+    }
+    .loadingSpinner div:nth-child(6) {
+      animation-delay: -0.216s;
+    }
+    .loadingSpinner div:nth-child(6):after {
+      top: 13.81vw;
+      left: 4.88vw;
+    }
+    .loadingSpinner div:nth-child(7) {
+      animation-delay: -0.252s;
+    }
+    .loadingSpinner div:nth-child(7):after {
+      top: 12.8vw;
+      left: 3.45vw;
+    }
+    .loadingSpinner div:nth-child(8) {
+      animation-delay: -0.288s;
+    }
+    .loadingSpinner div:nth-child(8):after {
+      top: 11.38vw;
+      left: 2.44vw;
+    }
+    @keyframes loadingSpinner {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  }
 }
 
 .boxes {

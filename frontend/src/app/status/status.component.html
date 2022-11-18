@@ -10,7 +10,8 @@
     </div>
     <div class="recognizedPic">
       <h3>Recognized card</h3>
-      <img src="{{imageLink}}" alt="image of recognized card">
+      <div class="loadingSpinner" *ngIf="waitingForResult"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      <img *ngIf="!waitingForResult" src="{{recognizedImageLink}}" alt="image of recognized card">
     </div>
     <div class="cardData">
       <h3>Card data:</h3>

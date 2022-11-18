@@ -18,6 +18,8 @@ export class StatusComponent implements OnInit {
   wanted: string = '';
   boxNumber: number | undefined = undefined;
   takenImageSrc: string = '';
+  recognizedImageLink: string = '';
+  waitingForResult: boolean = false;
 
   constructor(private messageService: MessageService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
@@ -27,14 +29,15 @@ export class StatusComponent implements OnInit {
       this.stock = parsedData.stock + ' ' + SortingCategory.STOCK.unit;
       this.wanted = parsedData.wanted + ' ' + SortingCategory.WANTED.unit;
       this.boxNumber = parsedData.box;
-      this.imageLink = parsedData.imageLink;
+      this.recognizedImageLink = parsedData.imageLink;
+      this.waitingForResult = false;
     });
     this.socket.on('error', (data: string) => {
       this.messageService.add(JSON.parse(data).message, 5000);
     });
     this.socket.on('image', (data: string) => {
       this.takenImageSrc = JSON.parse(data).imgSrc;
-      
+      this.waitingForResult = true;
     });
   }
 
