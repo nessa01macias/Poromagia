@@ -17,7 +17,7 @@ export class StatusComponent implements OnInit {
   stock: string = '';
   wanted: string = '';
   boxNumber: number | undefined = undefined;
-  imageLink: string = '';
+  takenImageSrc: string = '';
 
   constructor(private messageService: MessageService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
@@ -31,6 +31,10 @@ export class StatusComponent implements OnInit {
     });
     this.socket.on('error', (data: string) => {
       this.messageService.add(JSON.parse(data).message, 5000);
+    });
+    this.socket.on('image', (data: string) => {
+      this.takenImageSrc = JSON.parse(data).imgSrc;
+      
     });
   }
 

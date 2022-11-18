@@ -176,7 +176,10 @@ function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, car
 app.post('/recognize', async (req, res) => {
     //TODO: get pic from body and send to frontend
     let cardImage = req.query.filepath;
-    const childPython = spawn('python', ['get_match_and_sort.py', cardImage])
+    const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
+
+    // only for testing TODO: remove
+    io.emit('image', JSON.stringify({imgSrc: "https://cards.scryfall.io/large/front/f/2/f295b713-1d6a-43fd-910d-fb35414bf58a.jpg"}));
 
     childPython.stdout.on('data', async (data) => {
         const recognizedData = JSON.parse(data.toString());
