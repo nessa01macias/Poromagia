@@ -19,6 +19,7 @@ export class StatisticsComponent implements OnInit {
     {id: 1, text: 'Number of not recognized cards', selected: false},
     {id: 2, text: 'Selected category', selected: false},
     {id: 3, text: 'Number of cards in boxes', selected: false},
+    {id: 4, text: 'Average time to sort one card', selected: false},
   ];
 
   fromDate: Date | undefined = undefined;
@@ -37,6 +38,14 @@ export class StatisticsComponent implements OnInit {
     this.diagramTypes.forEach(type => {
       type.selected = type.id === typeId;
     });
+  }
+
+  typeIsSelected(): boolean {
+    return this.diagramTypes.findIndex(type => type.selected) >= 0;
+  }
+
+  getDatesValidity(): boolean {
+    return !this.fromDate || !this.toDate || this.fromDate < this.toDate;
   }
 
 }

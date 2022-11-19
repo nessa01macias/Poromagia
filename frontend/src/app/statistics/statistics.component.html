@@ -1,5 +1,6 @@
 <main>
   <app-navigation [activeIndex]="2"></app-navigation>
+
   <div class="selectorDropdown" *ngIf="!dropdownOpen">
     <div>Select statistics type and time</div>
     <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_down</mat-icon>
@@ -9,9 +10,9 @@
       <h3>Select the period of time:</h3>
       <div class="dateSelectors">
         <label for="fromDate">From: </label>
-        <input type="date" id="fromDate" [(ngModel)]="fromDate">
+        <input type="date" id="fromDate" [(ngModel)]="fromDate" class="{{getDatesValidity() ? '' : 'invalid'}}">
         <label for="toDate">to: </label>
-        <input type="date" id="toDate" [(ngModel)]="toDate">
+        <input type="date" id="toDate" [(ngModel)]="toDate" class="{{getDatesValidity() ? '' : 'invalid'}}">
       </div>
     </div>
     <div class="typeSelection">
@@ -19,7 +20,18 @@
       <button *ngFor="let type of diagramTypes" class="{{type.selected ? 'selected' : ''}}"
               (click)="selectDiagramType(type.id)">{{type.text}}</button>
     </div>
-    <div class="submitButton"><button>Show graph</button></div>
+    <div class="submitButton" (click)="toggleSelectDropdown()">
+      <div class="errorMessageContainer">
+        <div class="errorMessage" *ngIf="!getDatesValidity() || !typeIsSelected()">
+          Selected values are invalid!
+        </div>
+      </div>
+      <button [disabled]="!getDatesValidity() || !typeIsSelected()">Show graph</button>
+    </div>
     <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_up</mat-icon>
+  </div>
+
+  <div *ngIf="!dropdownOpen && (!fromDate || !toDate || !typeIsSelected() || !getDatesValidity())" class="selectMessage">
+    <p>Please select the period of time and the diagram type!</p>
   </div>
 </main>
