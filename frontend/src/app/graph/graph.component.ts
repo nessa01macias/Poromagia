@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Chart, registerables} from 'chart.js';
+import {MessageService} from "../_services/message.service";
 
 
 /**
@@ -24,20 +25,30 @@ export class GraphComponent implements OnInit {
   private maxGraphNumber: number = 5;
   private graphColors: string[] = ['#3151b9', '#9C31B9FF', '#29771CFF', '#CE7E21FF', '#CE212FFF'];
 
-  constructor() {
+  constructor(private messageService: MessageService) {
     Chart.register(...registerables);
   }
 
   ngOnInit(): void {
-    if (this.tension.length <= 0) {
-      for (let i: number = 0; i < this.datasetLabels.length; i++) {
+    // fill tension array with default values if it contains less values than datasets
+    if (this.tension.length < this.yAxisValues.length) {
+      for (let i: number = this.tension.length; i <= this.datasetLabels.length; i++) {
         this.tension.push(this.defaultTension);
       }
     }
-    this.getChart();
-    //TODO: check array length (dataset labels & yAxisValues arrays)
-  }
 
+    // check validity of input variables
+    if (this.yAxisValues.length > this.datasetLabels.length) {
+      this.messageService.add("Failed to get graph label", 'WARNING', 3000);
+    }
+    if (this.yAxisValues.length > this.maxGraphNumber) {
+      this.messageService.add("Too many graphs selected - Only the first " + this.maxGraphNumber + " graphs are displayed",
+        'WARNING', 4000);
+      this.yAxisValues = this.yAxisValues.slice(0, 5);
+    }
+
+    this.getChart();
+  }
 
   private getChart(): Chart {
     const datasetValues: any = [];
