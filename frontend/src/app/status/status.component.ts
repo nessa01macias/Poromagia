@@ -33,7 +33,7 @@ export class StatusComponent implements OnInit {
       this.waitingForResult = false;
     });
     this.socket.on('error', (data: string) => {
-      this.messageService.add(JSON.parse(data).message, 5000);
+      this.messageService.add(JSON.parse(data).message, 'ERROR', 5000);
     });
     this.socket.on('image', (data: string) => {
       this.takenImageSrc = JSON.parse(data).imgSrc;
