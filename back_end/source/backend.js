@@ -69,7 +69,7 @@ app.post('/start', (req, res, next) => {
     try {
         if (lowerBoundary === undefined || lowerBoundary === null
             || upperBoundary === undefined || upperBoundary === null) {
-            sortingValuesCollection.insertOne({ start: (new Date()).getTime(), category });
+            sortingValuesCollection.insertOne({ start: new Date(), category });
         } else {
             if (lowerBoundary >= upperBoundary) {
                 res.status(400).send({
@@ -77,7 +77,7 @@ app.post('/start', (req, res, next) => {
                         + ' and upper boundary ' + upperBoundary + ' - lower boundary is greater than or equal to upper boundary'
                 });
             }
-            sortingValuesCollection.insertOne({ start: (new Date()).getTime(), category, lowerBoundary, upperBoundary });
+            sortingValuesCollection.insertOne({ start: new Date(), category, lowerBoundary, upperBoundary });
         }
         mqttClient.publish(publishTopic, JSON.stringify({ status: 'start' }));
         return res.status(200).send({ message: "successfully send start status" });
@@ -92,7 +92,7 @@ app.post('/stop', (req, res, next) => {
             if (err) {
                 next('failed to get entry with latest start timestamp: ' + err);
             }
-            sortingValuesCollection.updateOne({ _id: items[0]._id }, { $set: { end: (new Date()).getTime() } });
+            sortingValuesCollection.updateOne({ _id: items[0]._id }, { $set: { end: new Date() } });
         });
         mqttClient.publish(publishTopic, JSON.stringify({ status: 'stop' }));
         return res.status(200).send({ message: "successfully sent stop status" });
@@ -148,7 +148,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
                 error = 'failed to get price from Poromagia DB';
             } else {
                 io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue, imageLink: cardLink}));
-                resultCollection.insertOne({timestamp: (new Date()), recognizedId: cardId.trim(),
+                resultCollection.insertOne({timestamp: new Date(), recognizedId: cardId.trim(),
                     box: boxValue, price, stock, wanted});
                 res.status(200).send({boxNumber: boxValue});
             }
@@ -168,7 +168,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
 function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
     io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4, imageLink: cardLink}));
-    resultCollection.insertOne({timestamp: (new Date()), recognizedId: cardId,
+    resultCollection.insertOne({timestamp: new Date(), recognizedId: cardId,
         box: 4, price, stock, wanted, error: errorMessage});
     io.emit('error', JSON.stringify({message: errorMessageForUser}));
     res.status(500).send({boxNumber: 4});
@@ -220,32 +220,21 @@ app.post('/recognize', async (req, res) => {
 async function getNumberOfCards(fromDate, toDate, type, res, next) {
     let matchExpression;
     switch (type) {
-        case 'all':
-            matchExpression = [{}];
-            break;
-        case 'recognized':
-            matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }];
-            break;
-        case 'notRecognized':
-            matchExpression = [{ box: 4 }];
-            break;
-        default:
-            return;
+        case 'all': matchExpression = [{}]; break;
+        case 'recognized': matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }]; break;
+        case 'notRecognized': matchExpression = [{ box: 4 }]; break;
+        default: return;
     }
 
     try {
         await resultCollection.aggregate([
-            {
-                $match: {
+            { $match: {
                     timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
                     $or: matchExpression
                 }
             },
-            {
-                $sort: { timestamp: 1 }
-            },
-            {
-                $group: {
+            { $sort: { timestamp: 1 } },
+            { $group: {
                     _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp"} },
                     count: { $sum: 1 } }
             }
@@ -271,6 +260,69 @@ app.get('/cardsCount/recognized', async (req, res, next) => {
 app.get('/cardsCount/notRecognized', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     await getNumberOfCards(fromDate, toDate, 'notRecognized', res, next);
+});
+
+app.get('/cardsCount/categories', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await sortingValuesCollection.aggregate([
+            { $match: {
+                    start : { $lte : ISODate(toDate)},
+                    $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
+                }
+            },
+            { $sort: { start: 1 } },
+            { $project: {
+                    priceCat: {  // set to 1 if category is price; 0 otherwise
+                        $cond: [ { category: "Price" }, 1, 0]
+                    },
+                    stockCat: {  // set to 1 if category is price; 0 otherwise
+                        $cond: [ { category: "Stock" }, 1, 0]
+                    },
+                    wantedCat: {  // set to 1 if category is price; 0 otherwise
+                        $cond: [ { category: "Wanted" }, 1, 0]
+                    }
+                }
+            },
+            { $group: {
+                    _id: 'cards per category',
+                    price: { $sum: "$priceCat" },
+                    stock: { $sum: "$stockCat" },
+                    wanted: { $sum: "$wantedCat" }
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) next(err);
+            res.status(200).send(result);
+        });
+    } catch(err) {
+        next('Failed to get number of sorted cards in different categories in the given time period: ' + err);
+    }
+});
+
+app.get('/sortingData/categories', async (req, res) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await sortingValuesCollection.aggregate([
+            { $match: {
+                    start : { $lte : ISODate(toDate)},
+                    $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
+                }
+            },
+            { $sort: { start: 1 } },
+            { $project: {
+                    category: "$category",
+                    start: "$start",
+                    end: "$end"
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) next(err);
+            res.status(200).send(result);
+        });
+    } catch(err) {
+        next('Failed to get sorting data in the given time period: ' + err);
+    }
 });
 
 
