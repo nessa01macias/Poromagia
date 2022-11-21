@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const fetch = require('node-fetch');
 const mqtt = require('mqtt');
 const cors = require('cors');
+const ISODate = require('isodate');
 
 
 const app = express();
@@ -147,7 +148,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
                 error = 'failed to get price from Poromagia DB';
             } else {
                 io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue, imageLink: cardLink}));
-                resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
+                resultCollection.insertOne({timestamp: (new Date()), recognizedId: cardId.trim(),
                     box: boxValue, price, stock, wanted});
                 res.status(200).send({boxNumber: boxValue});
             }
@@ -167,7 +168,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
 function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
     io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4, imageLink: cardLink}));
-    resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
+    resultCollection.insertOne({timestamp: (new Date()), recognizedId: cardId,
         box: 4, price, stock, wanted, error: errorMessage});
     io.emit('error', JSON.stringify({message: errorMessageForUser}));
     res.status(500).send({boxNumber: 4});
@@ -211,6 +212,65 @@ app.post('/recognize', async (req, res) => {
     childPython.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
     });
+});
+
+
+/* endpoints to get data from database for statistics */
+
+async function getNumberOfCards(fromDate, toDate, type, res, next) {
+    let matchExpression;
+    switch (type) {
+        case 'all':
+            matchExpression = [{}];
+            break;
+        case 'recognized':
+            matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }];
+            break;
+        case 'notRecognized':
+            matchExpression = [{ box: 4 }];
+            break;
+        default:
+            return;
+    }
+
+    try {
+        await resultCollection.aggregate([
+            {
+                $match: {
+                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
+                    $or: matchExpression
+                }
+            },
+            {
+                $sort: { timestamp: 1 }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp"} },
+                    count: { $sum: 1 } }
+            }
+        ]).toArray(function (err, result) {
+            if (err) next(err);
+            res.status(200).send(result);
+        });
+    } catch(err) {
+        next('Failed to get number of sorted cards in the given time period: ' + err);
+    }
+}
+
+app.get('/cardsCount/all', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    await getNumberOfCards(fromDate, toDate, 'all', res, next);
+});
+
+app.get('/cardsCount/recognized', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    await getNumberOfCards(fromDate, toDate, 'recognized', res, next);
+});
+
+app.get('/cardsCount/notRecognized', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    await getNumberOfCards(fromDate, toDate, 'notRecognized', res, next);
 });
 
 
