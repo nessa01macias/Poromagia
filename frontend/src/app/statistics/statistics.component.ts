@@ -19,12 +19,12 @@ export class StatisticsComponent implements OnInit {
 
   dropdownOpen: boolean = false;
   diagramTypes: DiagramType[] = [
-    {id: 0, chartType: 'line', text: 'Number of sorted cards', selected: false, endpointMethod: 'ALL_CARDS'},
-    {id: 1, chartType: 'line', text: 'Number of recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS'},
-    {id: 2, chartType: 'line', text: 'Number of not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
-    {id: 3, chartType: 'line', text: 'Number of cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
-    {id: 4, chartType: 'doughnut', text: 'Number of cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'},
-    //{id: 5, text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}, //TODO: no graph
+    {id: 0, chartType: 'line', text: 'Sorted cards', selected: false, endpointMethod: 'ALL_CARDS'},
+    {id: 1, chartType: 'line', text: 'Recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS'},
+    {id: 2, chartType: 'line', text: 'Not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
+    {id: 3, chartType: 'line', text: 'Cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
+    {id: 4, chartType: 'doughnut', text: 'Cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'},
+    //{id: 5, text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}, //TODO: table instead of graph
   ];
 
   fromDate: Date | undefined = undefined;
@@ -33,7 +33,7 @@ export class StatisticsComponent implements OnInit {
   chartType!: chartType;
   graphTitle!: string;
   xAxisTitle!: string;
-  yAxisTitle!: string;
+  yAxisTitle: string = "Number of cards";
   xAxisValues!: string[];
   yAxisValues!: number[][];
   datasetLabels!: string[];
@@ -79,7 +79,6 @@ export class StatisticsComponent implements OnInit {
 
             this.chartType = selectedType.chartType;
             this.graphTitle = selectedType.text;
-            this.yAxisTitle = 'Number of cards'; //TODO
             this.xAxisTitle = 'Dates';
             this.yAxisValues = datasetValues;
 

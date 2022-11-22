@@ -85,7 +85,7 @@
     .errorMessageContainer {
       width: 60vw;
       display: flex;
-      justify-content: end;
+      justify-content: flex-end;
 
       .errorMessage {
         color: darkred;
@@ -109,4 +109,5 @@
 
 .doughnutGraph {
   width: 50vw;
+  margin: 0 25vw;
 }

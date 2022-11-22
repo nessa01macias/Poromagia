@@ -26,7 +26,7 @@
           Selected values are invalid!
         </div>
       </div>
-      <button (click)="toggleSelectDropdown()" [disabled]="!getDatesValidity() || !typeIsSelected()">
+      <button (click)="toggleSelectDropdown()" [disabled]="!fromDate || !toDate || !getDatesValidity() || !typeIsSelected()">
         Show graph
       </button>
     </div>
@@ -38,7 +38,7 @@
   </div>
 
   <div *ngIf="!dropdownOpen && fromDate && toDate && typeIsSelected() && getDatesValidity()"
-       class="{{chartType === 'doughnut' ? 'graphContainer doughnutGraph' : 'graphContainer'}}">
+       class="{{chartType === 'doughnut' ? 'doughnutGraph' : 'graphContainer'}}">
     <app-graph
       [chartType]="chartType"
       graphTitle="{{graphTitle}}"

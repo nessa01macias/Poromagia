@@ -65,29 +65,32 @@ export class GraphComponent implements OnInit {
       tension: this.tension[index]
     }));
 
+    const scalesValues = this.chartType !== 'line' ? {} :
+      {
+        x: {
+          title: {
+            display: true,
+            text: this.xAxisTitle ? this.xAxisTitle : '',
+            color: '#000000'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: this.yAxisTitle ? this.yAxisTitle : '',
+            color: "#000000"
+          },
+          ticks: {
+            color:  "#000000"
+          }
+        }
+      };
+
     return new Chart('canvas', {
       type: this.chartType,
       options: {
         animation: false,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: this.xAxisTitle ? this.xAxisTitle : '',
-              color: '#000000'
-            }
-          },
-          y: {
-            title: {
-              display: true,
-              text: this.yAxisTitle ? this.yAxisTitle : '',
-              color: "#000000"
-            },
-            ticks: {
-              color:  "#000000"
-            }
-          }
-        },
+        scales: scalesValues,
         plugins: {
           title: {
             display: true,
