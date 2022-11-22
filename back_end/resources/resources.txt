@@ -1,3 +1,0 @@
-Some pictures of the pokemon cards will be included here for developing and testing the CV algorithm before we have
-implemented also the other part of the project. I have included also some other resources such as the card parts
-location, and how to identify columns and rows for each card.

@@ -21,7 +21,8 @@ const io = require('socket.io')(http, {
 
 /* mongoDB database connection */
 let db = null;
-const url = `mongodb://localhost:27017`;
+// const url = `mongodb://localhost:27017`;
+const url = `mongodb://127.0.0.1:27017`;
 const dbName = 'cardSorting';
 let sortingValuesCollection, resultCollection;
 
@@ -123,7 +124,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
     const stock = poromagiaData.stock;
     const wanted = poromagiaData.wanted;
     try {
-        sortingValuesCollection.find({}).sort({ start : -1 }).toArray((err, items) => {
+        sortingValuesCollection.find({}).sort({ start: -1 }).toArray((err, items) => {
             if (err) {
                 error = 'failed to get entry with latest start timestamp: ' + err;
                 userError = 'Failed to get entry with latest start timestamp';
@@ -146,10 +147,12 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
             if (boxValue < 1 || boxValue > 3) {
                 error = 'failed to get price from Poromagia DB';
             } else {
-                io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue, imageLink: cardLink}));
-                resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
-                    box: boxValue, price, stock, wanted});
-                res.status(200).send({boxNumber: boxValue});
+                io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: boxValue, imageLink: cardLink }));
+                resultCollection.insertOne({
+                    timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
+                    box: boxValue, price, stock, wanted
+                });
+                res.status(200).send({ boxNumber: boxValue });
             }
         });
         if (error) {
@@ -158,7 +161,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
             }
             sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink);
         }
-    } catch(err) {
+    } catch (err) {
         sendRecognizeError('failed to get box value: ' + err,
             price, stock, wanted, cardId, res, cardLink, 'Failed to get box value');
     }
@@ -166,11 +169,13 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
 
 function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
-    io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4, imageLink: cardLink}));
-    resultCollection.insertOne({timestamp: (new Date()).getTime(), recognizedId: cardId,
-        box: 4, price, stock, wanted, error: errorMessage});
-    io.emit('error', JSON.stringify({message: errorMessageForUser}));
-    res.status(500).send({boxNumber: 4});
+    io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: 4, imageLink: cardLink }));
+    resultCollection.insertOne({
+        timestamp: (new Date()).getTime(), recognizedId: cardId,
+        box: 4, price, stock, wanted, error: errorMessage
+    });
+    io.emit('error', JSON.stringify({ message: errorMessageForUser }));
+    res.status(500).send({ boxNumber: 4 });
 }
 
 app.post('/recognize', async (req, res) => {
@@ -179,7 +184,7 @@ app.post('/recognize', async (req, res) => {
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
 
     // only for testing TODO: remove
-    io.emit('image', JSON.stringify({imgSrc: "https://cards.scryfall.io/large/front/f/2/f295b713-1d6a-43fd-910d-fb35414bf58a.jpg"}));
+    io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/f/2/f295b713-1d6a-43fd-910d-fb35414bf58a.jpg" }));
 
     childPython.stdout.on('data', async (data) => {
         const recognizedData = JSON.parse(data.toString());
