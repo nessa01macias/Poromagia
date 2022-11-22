@@ -223,7 +223,8 @@ async function getNumberOfCards(fromDate, toDate, type, res, next) {
         case 'all': matchExpression = [{}]; break;
         case 'recognized': matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }]; break;
         case 'notRecognized': matchExpression = [{ box: 4 }]; break;
-        default: return;
+        case 1: case 2: case 3: case 4: matchExpression = [{ box: type }]; break;
+        default: next("Failed to get number of cards - invalid type"); return;
     }
 
     try {
@@ -260,6 +261,12 @@ app.get('/cardsCount/recognized', async (req, res, next) => {
 app.get('/cardsCount/notRecognized', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     await getNumberOfCards(fromDate, toDate, 'notRecognized', res, next);
+});
+
+app.get('/cardsCount/boxes/:id', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    const boxId = parseInt(req.params.id);
+    await getNumberOfCards(fromDate, toDate, boxId, res, next);
 });
 
 app.get('/cardsCount/categories', async (req, res, next) => {

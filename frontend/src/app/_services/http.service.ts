@@ -38,6 +38,11 @@ export class HttpService {
       + fromDate + "&toDate=" + toDate);
   }
 
+  getNumberOfCardsInBox(fromDate: Date, toDate: Date, boxId: number): Observable<any> {
+    return this.http.get("http://localhost:3000/cardsCount/boxes/" + boxId
+      + "?fromDate=" + fromDate + "&toDate=" + toDate);
+  }
+
   getCategoriesCount(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get("http://localhost:3000/cardsCount/categories?fromDate="
       + fromDate + "&toDate=" + toDate);
