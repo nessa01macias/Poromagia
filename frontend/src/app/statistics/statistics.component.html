@@ -20,18 +20,33 @@
       <button *ngFor="let type of diagramTypes" class="{{type.selected ? 'selected' : ''}}"
               (click)="selectDiagramType(type.id)">{{type.text}}</button>
     </div>
-    <div class="submitButton" (click)="toggleSelectDropdown()">
+    <div class="submitButton">
       <div class="errorMessageContainer">
         <div class="errorMessage" *ngIf="!getDatesValidity() || !typeIsSelected()">
           Selected values are invalid!
         </div>
       </div>
-      <button [disabled]="!getDatesValidity() || !typeIsSelected()">Show graph</button>
+      <button (click)="toggleSelectDropdown()" [disabled]="!getDatesValidity() || !typeIsSelected()">
+        Show graph
+      </button>
     </div>
     <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_up</mat-icon>
   </div>
 
   <div *ngIf="!dropdownOpen && (!fromDate || !toDate || !typeIsSelected() || !getDatesValidity())" class="selectMessage">
     <p>Please select the period of time and the diagram type!</p>
+  </div>
+
+  <div *ngIf="!dropdownOpen && fromDate && toDate && typeIsSelected() && getDatesValidity()" class="graphContainer">
+    <app-graph
+      graphTitle="{{graphTitle}}"
+      xAxisTitle="{{xAxisTitle}}"
+      yAxisTitle="{{yAxisTitle}}"
+      [xAxisValues]="xAxisValues"
+      [yAxisValues]="yAxisValues"
+      [datasetLabels]="datasetLabels"
+      [tension]="tension"
+    >
+    </app-graph>
   </div>
 </main>
