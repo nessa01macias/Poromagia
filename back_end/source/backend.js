@@ -300,7 +300,7 @@ app.get('/cardsCount/categories', async (req, res, next) => {
     }
 });
 
-app.get('/sortingData/categories', async (req, res) => {
+app.get('/sortingData/categories', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {
         await sortingValuesCollection.aggregate([

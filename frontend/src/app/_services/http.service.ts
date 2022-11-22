@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {Observable} from "rxjs";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -21,6 +22,30 @@ export class HttpService {
   pauseSorting(): void {
     this.http.post("http://localhost:3000/stop", '', httpOptions)
       .subscribe(res => console.debug("pause sorting response: " + JSON.stringify(res)));
+  }
+
+  getNumberOfAllCards(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/cardsCount/all?fromDate=" + fromDate + "&toDate=" + toDate);
+  }
+
+  getNumberOfRecognizedCards(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/cardsCount/recognized?fromDate="
+      + fromDate + "&toDate=" + toDate);
+  }
+
+  getNumberOfNotRecognizedCards(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/cardsCount/notRecognized?fromDate="
+      + fromDate + "&toDate=" + toDate);
+  }
+
+  getCategoriesCount(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/cardsCount/categories?fromDate="
+      + fromDate + "&toDate=" + toDate);
+  }
+
+  getSortingDataCategories(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/sortingData/categories?fromDate="
+      + fromDate + "&toDate=" + toDate);
   }
 
 }
