@@ -1,11 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {functionName, HttpService} from "../_services/http.service";
+import {chartType} from "../graph/graph.component";
 
 type DiagramType = {
   id: number,
+  chartType: chartType,
   text: string,
   selected: boolean,
-  endpointMethod: functionName
+  endpointMethod: functionName,
 }
 
 @Component({
@@ -17,17 +19,18 @@ export class StatisticsComponent implements OnInit {
 
   dropdownOpen: boolean = false;
   diagramTypes: DiagramType[] = [
-    {id: 0, text: 'Number of sorted cards', selected: false, endpointMethod: 'ALL_CARDS'},
-    {id: 1, text: 'Number of recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS'},
-    {id: 2, text: 'Number of not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
-    {id: 3, text: 'Number of cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
-    {id: 4, text: 'Number of cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'}, //TODO: no graph
-    {id: 5, text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}, //TODO: no graph
+    {id: 0, chartType: 'line', text: 'Number of sorted cards', selected: false, endpointMethod: 'ALL_CARDS'},
+    {id: 1, chartType: 'line', text: 'Number of recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS'},
+    {id: 2, chartType: 'line', text: 'Number of not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
+    {id: 3, chartType: 'line', text: 'Number of cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
+    {id: 4, chartType: 'doughnut', text: 'Number of cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'},
+    //{id: 5, text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}, //TODO: no graph
   ];
 
   fromDate: Date | undefined = undefined;
   toDate: Date | undefined = undefined;
 
+  chartType!: chartType;
   graphTitle!: string;
   xAxisTitle!: string;
   yAxisTitle!: string;
@@ -45,32 +48,40 @@ export class StatisticsComponent implements OnInit {
     if (this.dropdownOpen && this.fromDate && this.toDate) {
       const selectedType = this.diagramTypes.find(type => type.selected);
       if (selectedType && selectedType.endpointMethod) {
-        this.xAxisValues = this.getDates(this.fromDate, this.toDate);
+        this.xAxisValues = selectedType.chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
         this.yAxisValues = [];
         this.datasetLabels = [];
         this.tension = [];
 
         this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
           .subscribe(res => {
+            console.log("res: " + JSON.stringify(res));
             const responseProperties = Object.getOwnPropertyNames(res[0]);
             const datasetValues: number[][] = [];
             for (let i = 1; i < responseProperties.length; i++) {
               datasetValues.push([]);
               this.datasetLabels.push(responseProperties[i]);
               this.tension.push(0);
-            }
-
-            for (let date of this.xAxisValues) {
-              const numberOfCards = res.find((data: {_id: string, count: number}) => data._id === date);
-              for (let i = 1; i < responseProperties.length; i++) {
-                datasetValues[i - 1].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
+              if (selectedType.chartType === 'doughnut') {
+                this.xAxisValues.push(responseProperties[i]);
+                datasetValues[0].push(res[0][responseProperties[i]]);
               }
             }
 
-            this.yAxisValues = datasetValues;
+            if (selectedType.chartType === 'line') {
+              for (let date of this.xAxisValues) {
+                const numberOfCards = res.find((data: any) => data._id === date);
+                for (let i = 1; i < responseProperties.length; i++) {
+                  datasetValues[i - 1].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
+                }
+              }
+            }
+
+            this.chartType = selectedType.chartType;
             this.graphTitle = selectedType.text;
             this.yAxisTitle = 'Number of cards'; //TODO
             this.xAxisTitle = 'Dates';
+            this.yAxisValues = datasetValues;
 
             this.dropdownOpen = !this.dropdownOpen;
           });

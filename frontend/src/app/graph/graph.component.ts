@@ -3,6 +3,8 @@ import {Chart, registerables} from 'chart.js';
 import {MessageService} from "../_services/message.service";
 
 
+export type chartType = 'line' | 'doughnut';
+
 /**
  * xAxisValues, yAxisValues and datasetLabels are required attributes
  */
@@ -13,6 +15,7 @@ import {MessageService} from "../_services/message.service";
 })
 export class GraphComponent implements OnInit {
 
+  @Input() chartType: chartType = 'line';
   @Input() graphTitle!: string;
   @Input() xAxisTitle!: string;
   @Input() yAxisTitle!: string;
@@ -55,13 +58,15 @@ export class GraphComponent implements OnInit {
     this.yAxisValues.forEach((yDataset: number[], index: number) => datasetValues.push({
       label: this.datasetLabels[index],
       data: yDataset,
-      backgroundColor: this.graphColors[index],
-      borderColor: this.graphColors[index],
+      backgroundColor: this.chartType === 'line' ?
+        this.graphColors[index] : this.graphColors.slice(0, yDataset.length),
+      borderColor: this.chartType === 'line' ?
+        this.graphColors[index] : this.graphColors.slice(0, yDataset.length),
       tension: this.tension[index]
     }));
 
     return new Chart('canvas', {
-      type: 'line',
+      type: this.chartType,
       options: {
         animation: false,
         scales: {
