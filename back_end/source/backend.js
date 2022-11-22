@@ -280,14 +280,14 @@ app.get('/cardsCount/categories', async (req, res, next) => {
             },
             { $sort: { start: 1 } },
             { $project: {
-                    priceCat: {  // set to 1 if category is price; 0 otherwise
-                        $cond: [ { category: "Price" }, 1, 0]
+                    priceCat: {  // set to 1 if category is "Price"; 0 otherwise
+                        $cond: [ { $eq: [ "$category", "Price" ] }, 1, 0 ]
                     },
-                    stockCat: {  // set to 1 if category is price; 0 otherwise
-                        $cond: [ { category: "Stock" }, 1, 0]
+                    stockCat: {  // set to 1 if category is "Stock"; 0 otherwise
+                        $cond: [ { $eq: [ "$category", "Stock" ] }, 1, 0 ]
                     },
-                    wantedCat: {  // set to 1 if category is price; 0 otherwise
-                        $cond: [ { category: "Wanted" }, 1, 0]
+                    wantedCat: {  // set to 1 if category is "Wanted"; 0 otherwise
+                        $cond: [ { $eq: [ "$category", "Wanted" ] }, 1, 0 ]
                     }
                 }
             },
