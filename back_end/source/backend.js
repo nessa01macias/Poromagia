@@ -269,6 +269,41 @@ app.get('/cardsCount/boxes/:id', async (req, res, next) => {
     await getNumberOfCards(fromDate, toDate, boxId, res, next);
 });
 
+app.get('/cardsCount/boxes', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await resultCollection.aggregate([
+            { $match: {
+                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
+                    $or: [{ box: 1 }, { box: 2 }, { box: 3 }, { box: 4 }]
+                }
+            },
+            { $sort: { timestamp: 1 } },
+            { $project: {
+                    timestamp: "$timestamp",
+                    box1: { $cond: [ { $eq: [ "$box", 1 ] }, 1, 0 ] },
+                    box2: { $cond: [ { $eq: [ "$box", 2 ] }, 1, 0 ] },
+                    box3: { $cond: [ { $eq: [ "$box", 3 ] }, 1, 0 ] },
+                    box4: { $cond: [ { $eq: [ "$box", 4 ] }, 1, 0 ] },
+                }
+            },
+            { $group: {
+                    _id: {$dateToString: {format: "%Y-%m-%d", date: "$timestamp"}},
+                    count1: {$sum: "$box1"},
+                    count2: {$sum: "$box2"},
+                    count3: {$sum: "$box3"},
+                    count4: {$sum: "$box4"}
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) next(err);
+            res.status(200).send(result);
+        });
+    } catch(err) {
+        next('Failed to get number of sorted cards for each box in the given time period: ' + err);
+    }
+});
+
 app.get('/cardsCount/categories', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {

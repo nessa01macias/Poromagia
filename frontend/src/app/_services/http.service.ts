@@ -6,6 +6,9 @@ const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
 
+export type functionName = 'ALL_CARDS' | 'RECOGNIZED_CARDS' | 'NOT_RECOGNIZED_CARDS' | 'CARDS_IN_BOX'
+  | 'CARDS_IN_BOXES' | 'CATEGORIES_COUNT' | 'SORTING_DATA_CATEGORIES';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,6 +27,18 @@ export class HttpService {
       .subscribe(res => console.debug("pause sorting response: " + JSON.stringify(res)));
   }
 
+  callStatisticsEndpoint(func: functionName, fromDate: Date, toDate: Date, ...args: any[]): Observable<any> {
+    switch (func) {
+      case 'ALL_CARDS': return this.getNumberOfAllCards(fromDate, toDate);
+      case 'RECOGNIZED_CARDS': return this.getNumberOfRecognizedCards(fromDate, toDate);
+      case 'NOT_RECOGNIZED_CARDS': return this.getNumberOfNotRecognizedCards(fromDate, toDate);
+      case 'CARDS_IN_BOX': return this.getNumberOfCardsInBox(fromDate, toDate, args[0]);
+      case 'CARDS_IN_BOXES': return this.getNumberOfCardsInBoxes(fromDate, toDate);
+      case 'CATEGORIES_COUNT': return this.getCategoriesCount(fromDate, toDate);
+      case 'SORTING_DATA_CATEGORIES': return this.getSortingDataCategories(fromDate, toDate);
+    }
+  }
+
   getNumberOfAllCards(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get("http://localhost:3000/cardsCount/all?fromDate=" + fromDate + "&toDate=" + toDate);
   }
@@ -40,6 +55,11 @@ export class HttpService {
 
   getNumberOfCardsInBox(fromDate: Date, toDate: Date, boxId: number): Observable<any> {
     return this.http.get("http://localhost:3000/cardsCount/boxes/" + boxId
+      + "?fromDate=" + fromDate + "&toDate=" + toDate);
+  }
+
+  getNumberOfCardsInBoxes(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/cardsCount/boxes"
       + "?fromDate=" + fromDate + "&toDate=" + toDate);
   }
 
