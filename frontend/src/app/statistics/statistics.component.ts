@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {functionName, HttpService} from "../_services/http.service";
 import {chartType} from "../graph/graph.component";
+import {MessageService} from "../_services/message.service";
 
 type DiagramType = {
   id: number,
@@ -40,7 +41,7 @@ export class StatisticsComponent implements OnInit {
   tension!: number[];
   tableValues!: string[][];
 
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService, private messageService: MessageService) { }
 
   ngOnInit(): void {
   }
@@ -56,7 +57,10 @@ export class StatisticsComponent implements OnInit {
 
         this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
           .subscribe(res => {
-            const responseProperties = Object.getOwnPropertyNames(res[0]);
+            if (!res || res.length <= 0) {
+              this.messageService.add("No data in this period of time", 'WARNING', 5000);
+            }
+            const responseProperties = res && res.length > 0 ? Object.getOwnPropertyNames(res[0]) : [];
             const datasetValues: number[][] = [];
             for (let i = 1; i < responseProperties.length; i++) {
               datasetValues.push([]);
@@ -76,14 +80,7 @@ export class StatisticsComponent implements OnInit {
                 }
               }
             } else if (selectedType.chartType === 'table') {
-              this.tableValues = [];
-              for (let dataset of res) {
-                let tableDataset: string[] = [];
-                for (let i = 1; i < responseProperties.length; i++) {
-                  tableDataset.push(dataset[responseProperties[i]]);
-                }
-                this.tableValues.push(tableDataset);
-              }
+              this.setTableData(res, responseProperties);
             }
 
             this.chartType = selectedType.chartType;
@@ -96,6 +93,27 @@ export class StatisticsComponent implements OnInit {
       }
     } else {
       this.dropdownOpen = !this.dropdownOpen;
+    }
+  }
+
+  setTableData(httpResponse: any, responseProperties: any): void {
+    this.tableValues = [];
+    for (let dataset of httpResponse) {
+      let tableDataset: string[] = [];
+      for (let i = 1; i < responseProperties.length; i++) {
+        let dateString = dataset[responseProperties[i]];
+        if (dateString !== undefined && dateString !== null && responseProperties[i] === 'Time') {
+          const hours = Math.floor(dateString / (60 * 60));
+          const minutes = Math.floor((dateString - hours * 60 * 60) / 60);
+          const seconds = dateString - hours * 60 * 60 - minutes * 60;
+          tableDataset.push(hours.toString().padStart(2, '0') + ':'
+            + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'));
+        } else {
+          tableDataset.push(dateString && typeof dateString === 'string' ?
+            dateString.substring(0, 10) + ' ' + dateString.substring(11, 19) : dateString);
+        }
+      }
+      this.tableValues.push(tableDataset);
     }
   }
 

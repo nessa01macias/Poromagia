@@ -355,7 +355,8 @@ app.get('/sortingData/categories', async (req, res, next) => {
             { $project: {
                     category: "$category",
                     start: "$start",
-                    end: "$end"
+                    end: "$end",
+                    Time: { $trunc : { $divide: [{ $subtract: ["$end","$start"] }, 1000] } }
                 }
             }
         ]).toArray(function (err, result) {
