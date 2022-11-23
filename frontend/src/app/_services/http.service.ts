@@ -7,7 +7,7 @@ const httpOptions = {
 };
 
 export type functionName = 'ALL_CARDS' | 'RECOGNIZED_CARDS' | 'NOT_RECOGNIZED_CARDS' | 'CARDS_IN_BOX'
-  | 'CARDS_IN_BOXES' | 'CATEGORIES_COUNT' | 'SORTING_DATA_CATEGORIES';
+  | 'CARDS_IN_BOXES' | 'CATEGORIES_COUNT' | 'SORTING_DATA_CATEGORIES' | 'RECOGNIZE_TIMES';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +36,7 @@ export class HttpService {
       case 'CARDS_IN_BOXES': return this.getNumberOfCardsInBoxes(fromDate, toDate);
       case 'CATEGORIES_COUNT': return this.getCategoriesCount(fromDate, toDate);
       case 'SORTING_DATA_CATEGORIES': return this.getSortingDataCategories(fromDate, toDate);
+      case 'RECOGNIZE_TIMES': return this.getRecognizeTimes(fromDate, toDate);
     }
   }
 
@@ -60,6 +61,11 @@ export class HttpService {
 
   getNumberOfCardsInBoxes(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get("http://localhost:3000/cardsCount/boxes"
+      + "?fromDate=" + fromDate + "&toDate=" + toDate);
+  }
+
+  getRecognizeTimes(fromDate: Date, toDate: Date): Observable<any> {
+    return this.http.get("http://localhost:3000/recognizeTimes"
       + "?fromDate=" + fromDate + "&toDate=" + toDate);
   }
 

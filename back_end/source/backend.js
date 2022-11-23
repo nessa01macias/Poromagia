@@ -315,6 +315,28 @@ app.get('/cardsCount/boxes', async (req, res, next) => {
     }
 });
 
+app.get('/recognizeTimes', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await resultCollection.aggregate([
+            { $match: {
+                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)}
+                }
+            },
+            { $group: {
+                    _id: { $trunc : { $divide: [{ $subtract: ["$timestamp", "$start"] }, 5000] } }, //5s intervals
+                    count: { $sum: 1 }
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) next(err);
+            res.status(200).send(result);
+        });
+    } catch(err) {
+        next('Failed to get times to recognize cards in the given time period: ' + err);
+    }
+});
+
 app.get('/cardsCount/categories', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {
