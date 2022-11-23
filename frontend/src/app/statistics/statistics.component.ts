@@ -25,7 +25,8 @@ export class StatisticsComponent implements OnInit {
     {id: 2, chartType: 'line', text: 'Not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
     {id: 3, chartType: 'line', text: 'Cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
     {id: 4, chartType: 'doughnut', text: 'Cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'},
-    {id: 5, chartType: 'table', text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}
+    {id: 5, chartType: 'table', text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'},
+    {id: 6, chartType: 'bar', text: 'Time to sort a card', selected: false, endpointMethod: 'RECOGNIZE_TIMES'}
   ];
 
   fromDate: Date | undefined = undefined;
@@ -57,6 +58,7 @@ export class StatisticsComponent implements OnInit {
 
         this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
           .subscribe(res => {
+            console.debug("http response: " + JSON.stringify(res));
             if (!res || res.length <= 0) {
               this.messageService.add("No data in this period of time", 'WARNING', 5000);
             }
@@ -72,7 +74,13 @@ export class StatisticsComponent implements OnInit {
               }
             }
 
-            if (selectedType.chartType === 'line') {
+            if (selectedType.chartType === 'bar') {
+              for (let resDataset of res) {
+                this.xAxisValues.push(resDataset._id);
+              }
+            }
+
+            if (selectedType.chartType === 'line' || selectedType.chartType === 'bar') {
               for (let date of this.xAxisValues) {
                 const numberOfCards = res.find((data: any) => data._id === date);
                 for (let i = 1; i < responseProperties.length; i++) {

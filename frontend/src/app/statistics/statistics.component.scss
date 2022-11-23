@@ -106,7 +106,6 @@
   width: 80vw;
   margin: 5vh 10vw;
   height: 75vh;
-  overflow-y: scroll;
 
   table {
     width: 75vw;
@@ -128,7 +127,11 @@
   }
 }
 
-.doughnutGraph {
+.doughnut {
   width: 50vw;
   margin: 0 25vw;
+}
+
+.table {
+  overflow-y: scroll;
 }

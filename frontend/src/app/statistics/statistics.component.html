@@ -38,7 +38,7 @@
   </div>
 
   <div *ngIf="!dropdownOpen && fromDate && toDate && typeIsSelected() && getDatesValidity()"
-       class="{{chartType === 'doughnut' ? 'doughnutGraph' : 'graphContainer'}}">
+       class="{{'graphContainer ' + chartType}}">
     <app-graph *ngIf="chartType !== 'table'"
       [chartType]="chartType"
       graphTitle="{{graphTitle}}"

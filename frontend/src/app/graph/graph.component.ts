@@ -3,7 +3,7 @@ import {Chart, registerables} from 'chart.js';
 import {MessageService} from "../_services/message.service";
 
 
-export type chartType = 'line' | 'doughnut' | 'table';
+export type chartType = 'line' | 'doughnut' | 'table' | 'bar';
 
 /**
  * xAxisValues, yAxisValues and datasetLabels are required attributes
@@ -82,7 +82,8 @@ export class GraphComponent implements OnInit {
           },
           ticks: {
             color:  "#000000"
-          }
+          },
+          beginAtZero: true
         }
       };
 
