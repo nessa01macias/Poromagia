@@ -117,7 +117,7 @@ function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
     }
 }
 
-function sendBoxValue(poromagiaData, cardId, res, cardLink) {
+function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
     let error = null;
     let userError = null;
     const price = poromagiaData.price;
@@ -148,33 +148,44 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
                 error = 'failed to get price from Poromagia DB';
             } else {
                 io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue, imageLink: cardLink}));
-                resultCollection.insertOne({timestamp: new Date(), recognizedId: cardId.trim(),
-                    box: boxValue, price, stock, wanted});
+                resultCollection.updateOne({ _id: objectId }, { $set: { timestamp: new Date(),
+                        recognizedId: cardId.trim(), box: boxValue, price, stock, wanted } });
                 res.status(200).send({boxNumber: boxValue});
             }
         });
         if (error) {
             if (userError) {
-                sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink, userError);
+                sendRecognizeError(error, objectId, price, stock, wanted, cardId, res, cardLink, userError);
             }
-            sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink);
+            sendRecognizeError(error, objectId, price, stock, wanted, cardId, res, cardLink);
         }
     } catch(err) {
-        sendRecognizeError('failed to get box value: ' + err,
+        sendRecognizeError('failed to get box value: ' + err, objectId,
             price, stock, wanted, cardId, res, cardLink, 'Failed to get box value');
     }
 }
 
-function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
+function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
     io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4, imageLink: cardLink}));
-    resultCollection.insertOne({timestamp: new Date(), recognizedId: cardId,
-        box: 4, price, stock, wanted, error: errorMessage});
+    resultCollection.updateOne({ _id: objectId }, { $set: { timestamp: new Date(), recognizedId: cardId,
+            box: 4, price, stock, wanted } });
     io.emit('error', JSON.stringify({message: errorMessageForUser}));
     res.status(500).send({boxNumber: 4});
 }
 
-app.post('/recognize', async (req, res) => {
+app.post('/recognize', async (req, res, next) => {
+    const objectWithoutResultValues = {start: new Date()};
+    let objectId;
+    try {
+        resultCollection.insertOne(objectWithoutResultValues, (err) => {
+            if (err) return next("Failed to insert new result object with start timestamp: " + err);
+            objectId = objectWithoutResultValues._id;
+        });
+    } catch(err) {
+        return next("Failed to insert initial result object into database: " + err);
+    }
+
     //TODO: get pic from body and send to frontend
     let cardImage = req.query.filepath;
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
@@ -196,15 +207,15 @@ app.post('/recognize', async (req, res) => {
         console.debug("poromagia data: " + JSON.stringify(poromagiaData));
         if (!poromagiaData) {
             sendRecognizeError('Failed to get data from poromagia database for id "' + cardID + '"',
-                null, null, null, cardID, res, cardLink);
+                objectId, null, null, null, cardID, res, cardLink);
         }
 
-        sendBoxValue(poromagiaData, cardID, res, cardLink);
+        sendBoxValue(poromagiaData, cardID, res, cardLink, objectId);
     });
 
     childPython.stderr.on('data', (data) => {
         console.error('stderr:', data.toString());
-        sendRecognizeError('error in python child process: ' + data.toString(), null, null,
+        sendRecognizeError('error in python child process: ' + data.toString(), objectId, null, null,
             null, null, res, null, 'An error uccured while trying to recognize the card');
         childPython.stderr.removeAllListeners();
     });
