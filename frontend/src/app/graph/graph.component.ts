@@ -3,7 +3,7 @@ import {Chart, registerables} from 'chart.js';
 import {MessageService} from "../_services/message.service";
 
 
-export type chartType = 'line' | 'doughnut';
+export type chartType = 'line' | 'doughnut' | 'table';
 
 /**
  * xAxisValues, yAxisValues and datasetLabels are required attributes
@@ -87,7 +87,7 @@ export class GraphComponent implements OnInit {
       };
 
     return new Chart('canvas', {
-      type: this.chartType,
+      type: this.chartType !== 'table' ? this.chartType : 'line',
       options: {
         animation: false,
         scales: scalesValues,

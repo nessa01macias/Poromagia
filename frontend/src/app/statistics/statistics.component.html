@@ -39,7 +39,7 @@
 
   <div *ngIf="!dropdownOpen && fromDate && toDate && typeIsSelected() && getDatesValidity()"
        class="{{chartType === 'doughnut' ? 'doughnutGraph' : 'graphContainer'}}">
-    <app-graph
+    <app-graph *ngIf="chartType !== 'table'"
       [chartType]="chartType"
       graphTitle="{{graphTitle}}"
       xAxisTitle="{{xAxisTitle}}"
@@ -50,5 +50,13 @@
       [tension]="tension"
     >
     </app-graph>
+    <table *ngIf="chartType === 'table'">
+      <tr>
+        <th *ngFor="let header of datasetLabels">{{header}}</th>
+      </tr>
+      <tr *ngFor="let dataRow of tableValues">
+        <td *ngFor="let value of dataRow">{{value}}</td>
+      </tr>
+    </table>
   </div>
 </main>

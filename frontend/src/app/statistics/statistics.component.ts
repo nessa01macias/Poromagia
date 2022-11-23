@@ -24,7 +24,7 @@ export class StatisticsComponent implements OnInit {
     {id: 2, chartType: 'line', text: 'Not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
     {id: 3, chartType: 'line', text: 'Cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
     {id: 4, chartType: 'doughnut', text: 'Cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'},
-    //{id: 5, text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}, //TODO: table instead of graph
+    {id: 5, chartType: 'table', text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'}
   ];
 
   fromDate: Date | undefined = undefined;
@@ -38,6 +38,7 @@ export class StatisticsComponent implements OnInit {
   yAxisValues!: number[][];
   datasetLabels!: string[];
   tension!: number[];
+  tableValues!: string[][];
 
   constructor(private httpService: HttpService) { }
 
@@ -55,7 +56,6 @@ export class StatisticsComponent implements OnInit {
 
         this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
           .subscribe(res => {
-            console.log("res: " + JSON.stringify(res));
             const responseProperties = Object.getOwnPropertyNames(res[0]);
             const datasetValues: number[][] = [];
             for (let i = 1; i < responseProperties.length; i++) {
@@ -74,6 +74,15 @@ export class StatisticsComponent implements OnInit {
                 for (let i = 1; i < responseProperties.length; i++) {
                   datasetValues[i - 1].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
                 }
+              }
+            } else if (selectedType.chartType === 'table') {
+              this.tableValues = [];
+              for (let dataset of res) {
+                let tableDataset: string[] = [];
+                for (let i = 1; i < responseProperties.length; i++) {
+                  tableDataset.push(dataset[responseProperties[i]]);
+                }
+                this.tableValues.push(tableDataset);
               }
             }
 
