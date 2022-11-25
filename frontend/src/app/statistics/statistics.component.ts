@@ -22,6 +22,7 @@ type DiagramType = {
 export class StatisticsComponent {
 
   dropdownOpen: boolean = false;
+  displayPreviousGraph: boolean = false;
   diagramTypes: DiagramType[] = [
     {id: 0, chartType: 'line', text: 'Sorted cards', selected: false, endpointMethod: 'ALL_CARDS', combinableWith: [1, 2, 3]},
     {id: 1, chartType: 'line', text: 'Recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS', combinableWith: [0, 2, 3]},
@@ -55,7 +56,12 @@ export class StatisticsComponent {
   }
 
   toggleSelectDropdown(): void {
-    if (this.dropdownOpen && this.fromDate && this.toDate) {
+    if (this.dropdownOpen &&
+      (!this.fromDate || !this.toDate || !this.getDatesValidity() || !this.typeIsSelected())) {
+      // only close dropdown and not reload diagram, if not all values are set correctly
+      this.displayPreviousGraph = this.yAxisValues && this.yAxisValues.length > 0;
+      this.dropdownOpen = false;
+    } else if (this.dropdownOpen && this.fromDate && this.toDate) {
       const selectedTypes = this.diagramTypes.filter(type => type.selected);
       this.xAxisValues = selectedTypes[0].chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
       this.yAxisValues = [];
@@ -115,12 +121,14 @@ export class StatisticsComponent {
               if (dataReadCount >= selectedTypes.length) {
                 // all data read and written to dataset
                 this.dropdownOpen = !this.dropdownOpen;
+                this.displayPreviousGraph = false;
               }
             });
         }
       });
     } else {
       this.dropdownOpen = !this.dropdownOpen;
+      this.displayPreviousGraph = false;
     }
   }
 
