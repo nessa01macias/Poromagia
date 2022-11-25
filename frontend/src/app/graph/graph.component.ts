@@ -25,8 +25,9 @@ export class GraphComponent implements OnInit {
   @Input() tension: number[] = [];
 
   private defaultTension: number = 0.4;
-  private maxGraphNumber: number = 5;
-  private graphColors: string[] = ['#3151b9', '#9C31B9FF', '#29771CFF', '#CE7E21FF', '#CE212FFF'];
+  private maxGraphNumber: number = 8;
+  private graphColors: string[] = ['#3151b9', '#9C31B9FF', '#29771CFF', '#CE7E21FF',
+    '#CE212FFF', '#31a5b9', '#7cb931', '#000000'];
 
   constructor(private messageService: MessageService) {
     Chart.register(...registerables);
@@ -90,7 +91,6 @@ export class GraphComponent implements OnInit {
     return new Chart('canvas', {
       type: this.chartType !== 'table' ? this.chartType : 'line',
       options: {
-        animation: false,
         scales: scalesValues,
         plugins: {
           title: {

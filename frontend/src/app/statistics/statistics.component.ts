@@ -9,6 +9,7 @@ type DiagramType = {
   text: string,
   selected: boolean,
   endpointMethod: functionName,
+  combinableWith: number[]
 }
 
 @Component({
@@ -20,13 +21,13 @@ export class StatisticsComponent implements OnInit {
 
   dropdownOpen: boolean = false;
   diagramTypes: DiagramType[] = [
-    {id: 0, chartType: 'line', text: 'Sorted cards', selected: false, endpointMethod: 'ALL_CARDS'},
-    {id: 1, chartType: 'line', text: 'Recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS'},
-    {id: 2, chartType: 'line', text: 'Not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS'},
-    {id: 3, chartType: 'line', text: 'Cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES'},
-    {id: 4, chartType: 'doughnut', text: 'Cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT'},
-    {id: 5, chartType: 'table', text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES'},
-    {id: 6, chartType: 'bar', text: 'Time to sort a card', selected: false, endpointMethod: 'RECOGNIZE_TIMES'}
+    {id: 0, chartType: 'line', text: 'Sorted cards', selected: false, endpointMethod: 'ALL_CARDS', combinableWith: [1, 2, 3]},
+    {id: 1, chartType: 'line', text: 'Recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS', combinableWith: [0, 2, 3]},
+    {id: 2, chartType: 'line', text: 'Not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS', combinableWith: [0, 1, 3]},
+    {id: 3, chartType: 'line', text: 'Cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES', combinableWith: [0, 1, 2]},
+    {id: 4, chartType: 'doughnut', text: 'Cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT', combinableWith: []},
+    {id: 5, chartType: 'table', text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES', combinableWith: []},
+    {id: 6, chartType: 'bar', text: 'Time to sort a card', selected: false, endpointMethod: 'RECOGNIZE_TIMES', combinableWith: []}
   ];
 
   fromDate: Date | undefined = undefined;
@@ -49,56 +50,69 @@ export class StatisticsComponent implements OnInit {
 
   toggleSelectDropdown(): void {
     if (this.dropdownOpen && this.fromDate && this.toDate) {
-      const selectedType = this.diagramTypes.find(type => type.selected);
-      if (selectedType && selectedType.endpointMethod) {
-        this.xAxisValues = selectedType.chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
-        this.yAxisValues = [];
-        this.datasetLabels = [];
-        this.tension = [];
+      const selectedTypes = this.diagramTypes.filter(type => type.selected);
+      this.xAxisValues = selectedTypes[0].chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
+      this.yAxisValues = [];
+      this.datasetLabels = [];
+      this.tension = [];
+      const datasetValues: number[][] = [];
+      let dataReadCount: number = 0;
 
-        this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
-          .subscribe(res => {
-            console.debug("http response: " + JSON.stringify(res));
-            if (!res || res.length <= 0) {
-              this.messageService.add("No data in this period of time", 'WARNING', 5000);
-            }
-            const responseProperties = res && res.length > 0 ? Object.getOwnPropertyNames(res[0]) : [];
-            const datasetValues: number[][] = [];
-            for (let i = 1; i < responseProperties.length; i++) {
-              datasetValues.push([]);
-              this.datasetLabels.push(responseProperties[i]);
-              this.tension.push(0);
-              if (selectedType.chartType === 'doughnut') {
-                this.xAxisValues.push(responseProperties[i]);
-                datasetValues[0].push(res[0][responseProperties[i]]);
+      selectedTypes.forEach(selectedType => {
+        if (selectedType && selectedType.endpointMethod && this.fromDate && this.toDate) {
+          this.xAxisValues = selectedType.chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
+          this.yAxisValues = [];
+          this.datasetLabels = [];
+          this.tension = [];
+
+          this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
+            .subscribe(res => {
+              console.debug("http response: " + JSON.stringify(res));
+              if (!res || res.length <= 0) {
+                this.messageService.add("No data in this period of time", 'WARNING', 5000);
               }
-            }
-
-            if (selectedType.chartType === 'bar') {
-              for (let resDataset of res) {
-                this.xAxisValues.push(resDataset._id);
-              }
-            }
-
-            if (selectedType.chartType === 'line' || selectedType.chartType === 'bar') {
-              for (let date of this.xAxisValues) {
-                const numberOfCards = res.find((data: any) => data._id === date);
-                for (let i = 1; i < responseProperties.length; i++) {
-                  datasetValues[i - 1].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
+              const responseProperties = res && res.length > 0 ? Object.getOwnPropertyNames(res[0]) : [];
+              for (let i = 1; i < responseProperties.length; i++) {
+                datasetValues.push([]);
+                this.datasetLabels.push(responseProperties[i]);
+                this.tension.push(0);
+                if (selectedType.chartType === 'doughnut') {
+                  this.xAxisValues.push(responseProperties[i]);
+                  datasetValues[0].push(res[0][responseProperties[i]]);
                 }
               }
-            } else if (selectedType.chartType === 'table') {
-              this.setTableData(res, responseProperties);
-            }
 
-            this.chartType = selectedType.chartType;
-            this.graphTitle = selectedType.text;
-            this.xAxisTitle = 'Dates';
-            this.yAxisValues = datasetValues;
+              if (selectedType.chartType === 'bar') {
+                for (let resDataset of res) {
+                  this.xAxisValues.push(resDataset._id);
+                }
+              }
 
-            this.dropdownOpen = !this.dropdownOpen;
-          });
-      }
+              if (selectedType.chartType === 'line' || selectedType.chartType === 'bar') {
+                for (let date of this.xAxisValues) {
+                  const numberOfCards = res.find((data: any) => data._id === date);
+                  for (let i = 1; i < responseProperties.length; i++) {
+                    const index = datasetValues.length - responseProperties.length + i;
+                    datasetValues[index].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
+                  }
+                }
+              } else if (selectedType.chartType === 'table') {
+                this.setTableData(res, responseProperties);
+              }
+
+              this.chartType = selectedType.chartType;
+              this.graphTitle = selectedType.text; //TODO
+              this.xAxisTitle = 'Dates';
+              this.yAxisValues = datasetValues;
+              dataReadCount++;
+
+              if (dataReadCount >= selectedTypes.length) {
+                // all data read and written to dataset
+                this.dropdownOpen = !this.dropdownOpen;
+              }
+            });
+        }
+      });
     } else {
       this.dropdownOpen = !this.dropdownOpen;
     }
@@ -126,9 +140,13 @@ export class StatisticsComponent implements OnInit {
   }
 
   selectDiagramType(typeId: number) {
-    this.diagramTypes.forEach(type => {
-      type.selected = type.id === typeId;
-    });
+    const clickedType = this.diagramTypes.find(type => type.id === typeId);
+    if (clickedType) {
+      this.diagramTypes.forEach(type => {
+        type.selected = !type.selected && type.id === typeId
+          || type.selected && clickedType.combinableWith.includes(type.id);
+      });
+    }
   }
 
   typeIsSelected(): boolean {
