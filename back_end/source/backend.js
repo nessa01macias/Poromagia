@@ -230,11 +230,12 @@ app.post('/recognize', async (req, res, next) => {
 
 async function getNumberOfCards(fromDate, toDate, type, res, next) {
     let matchExpression;
+    let label;
     switch (type) {
-        case 'all': matchExpression = [{}]; break;
-        case 'recognized': matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }]; break;
-        case 'notRecognized': matchExpression = [{ box: 4 }]; break;
-        case 1: case 2: case 3: case 4: matchExpression = [{ box: type }]; break;
+        case 'all': matchExpression = [{}]; label = "Sorted cards"; break;
+        case 'recognized': matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }]; label = "Recognized cards"; break;
+        case 'notRecognized': matchExpression = [{ box: 4 }]; label = "Not recognized cards"; break;
+        case 1: case 2: case 3: case 4: matchExpression = [{ box: type }]; label = "Cards sorted in box " + type; break;
         default: next("Failed to get number of cards - invalid type"); return;
     }
 
@@ -252,7 +253,7 @@ async function getNumberOfCards(fromDate, toDate, type, res, next) {
             }
         ]).toArray(function (err, result) {
             if (err) next(err);
-            res.status(200).send(result);
+            res.status(200).send({data: result, labels: [label]});
         });
     } catch(err) {
         next('Failed to get number of sorted cards in the given time period: ' + err);
@@ -308,7 +309,7 @@ app.get('/cardsCount/boxes', async (req, res, next) => {
             }
         ]).toArray(function (err, result) {
             if (err) next(err);
-            res.status(200).send(result);
+            res.status(200).send({data: result, labels: ["Box 1", "Box 2", "Box 3", "Box 4"]});
         });
     } catch(err) {
         next('Failed to get number of sorted cards for each box in the given time period: ' + err);
@@ -323,14 +324,21 @@ app.get('/recognizeTimes', async (req, res, next) => {
                     timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)}
                 }
             },
+            { $project: {
+                time: { $trunc : { $divide: [{ $subtract: ["$timestamp", "$start"] }, 5000] } } //5s intervals
+            }},
             { $group: {
-                    _id: { $trunc : { $divide: [{ $subtract: ["$timestamp", "$start"] }, 5000] } }, //5s intervals
-                    count: { $sum: 1 }
+                _id: { $concat: [ { $substr: [{ $multiply: [ "$time", 5 ] }, 0, -1 ]}, " - ",
+                        { $substr: [{ $add: [ { $multiply: [ "$time", 5 ] }, 5 ] }, 0, -1 ] }, " s" ] },
+                    count: { $sum: 1 },
+                    time: { $first: "$time" }
                 }
-            }
+            },
+            { $sort: { time: 1 } },
+            { $project: { _id: "$_id", count: "$count" }}
         ]).toArray(function (err, result) {
             if (err) next(err);
-            res.status(200).send(result);
+            res.status(200).send({data: result, labels: ["Number of cards"]});
         });
     } catch(err) {
         next('Failed to get times to recognize cards in the given time period: ' + err);
@@ -368,7 +376,8 @@ app.get('/cardsCount/categories', async (req, res, next) => {
             }
         ]).toArray(function (err, result) {
             if (err) next(err);
-            res.status(200).send(result);
+            res.status(200).send({data: result, labels: ["Cards sorted by Price",
+                    "Cards sorted by Stock", "Cards sorted by Wanted value"]});
         });
     } catch(err) {
         next('Failed to get number of sorted cards in different categories in the given time period: ' + err);
@@ -394,7 +403,7 @@ app.get('/sortingData/categories', async (req, res, next) => {
             }
         ]).toArray(function (err, result) {
             if (err) next(err);
-            res.status(200).send(result);
+            res.status(200).send({data: result, labels: ["Category", "Start time", "End time", "Duration"]});
         });
     } catch(err) {
         next('Failed to get sorting data in the given time period: ' + err);

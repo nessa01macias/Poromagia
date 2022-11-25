@@ -54,14 +54,14 @@ export class GraphComponent implements OnInit {
     this.getChart();
   }
 
-  private getChart(): Chart {
+  private getChart(): void {
     const datasetValues: any = [];
     this.yAxisValues.forEach((yDataset: number[], index: number) => datasetValues.push({
       label: this.datasetLabels[index],
       data: yDataset,
-      backgroundColor: this.chartType === 'line' ?
+      backgroundColor: this.chartType === 'line' || this.chartType === 'bar' ?
         this.graphColors[index] : this.graphColors.slice(0, yDataset.length),
-      borderColor: this.chartType === 'line' ?
+      borderColor: this.chartType === 'line' || this.chartType === 'bar' ?
         this.graphColors[index] : this.graphColors.slice(0, yDataset.length),
       tension: this.tension[index]
     }));
@@ -88,7 +88,7 @@ export class GraphComponent implements OnInit {
         }
       };
 
-    return new Chart('canvas', {
+    new Chart('canvas', {
       type: this.chartType !== 'table' ? this.chartType : 'line',
       options: {
         scales: scalesValues,

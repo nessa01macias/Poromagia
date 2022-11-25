@@ -60,52 +60,52 @@ export class StatisticsComponent implements OnInit {
 
       selectedTypes.forEach(selectedType => {
         if (selectedType && selectedType.endpointMethod && this.fromDate && this.toDate) {
-          this.xAxisValues = selectedType.chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
-          this.yAxisValues = [];
-          this.datasetLabels = [];
-          this.tension = [];
-
           this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
             .subscribe(res => {
               console.debug("http response: " + JSON.stringify(res));
-              if (!res || res.length <= 0) {
+              if (!res || !res.data || res.data.length <= 0) {
                 this.messageService.add("No data in this period of time", 'WARNING', 5000);
               }
-              const responseProperties = res && res.length > 0 ? Object.getOwnPropertyNames(res[0]) : [];
+              const responseProperties = res && res.data && res.data.length > 0 ?
+                Object.getOwnPropertyNames(res.data[0]) : [];
               for (let i = 1; i < responseProperties.length; i++) {
                 datasetValues.push([]);
-                this.datasetLabels.push(responseProperties[i]);
+                this.datasetLabels.push(res.labels && res.labels[i-1] ? res.labels[i-1] : responseProperties[i]);
                 this.tension.push(0);
                 if (selectedType.chartType === 'doughnut') {
-                  this.xAxisValues.push(responseProperties[i]);
-                  datasetValues[0].push(res[0][responseProperties[i]]);
+                  this.xAxisValues.push(res.labels && res.labels[i-1] ? res.labels[i-1] : responseProperties[i]);
+                  datasetValues[0].push(res.data[0][responseProperties[i]]);
                 }
               }
 
               if (selectedType.chartType === 'bar') {
-                for (let resDataset of res) {
+                for (let resDataset of res.data) {
                   this.xAxisValues.push(resDataset._id);
                 }
               }
 
               if (selectedType.chartType === 'line' || selectedType.chartType === 'bar') {
                 for (let date of this.xAxisValues) {
-                  const numberOfCards = res.find((data: any) => data._id === date);
+                  const numberOfCards = res.data.find((data: any) => data._id === date);
                   for (let i = 1; i < responseProperties.length; i++) {
                     const index = datasetValues.length - responseProperties.length + i;
                     datasetValues[index].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
                   }
                 }
               } else if (selectedType.chartType === 'table') {
-                this.setTableData(res, responseProperties);
+                this.setTableData(res.data, responseProperties);
               }
 
               this.chartType = selectedType.chartType;
-              this.graphTitle = selectedType.text; //TODO
               this.xAxisTitle = 'Dates';
               this.yAxisValues = datasetValues;
               dataReadCount++;
 
+              if (selectedTypes.length === 1) {
+                this.graphTitle = selectedType.text;
+              } else {
+                this.graphTitle = "Sorted cards";
+              }
               if (dataReadCount >= selectedTypes.length) {
                 // all data read and written to dataset
                 this.dropdownOpen = !this.dropdownOpen;
