@@ -1,7 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {functionName, HttpService} from "../_services/http.service";
 import {chartType} from "../graph/graph.component";
 import {MessageService} from "../_services/message.service";
+import {io, Socket} from "socket.io-client";
+import {environment} from "../../environments/environment";
 
 type DiagramType = {
   id: number,
@@ -17,7 +19,7 @@ type DiagramType = {
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss']
 })
-export class StatisticsComponent implements OnInit {
+export class StatisticsComponent {
 
   dropdownOpen: boolean = false;
   diagramTypes: DiagramType[] = [
@@ -43,9 +45,13 @@ export class StatisticsComponent implements OnInit {
   tension!: number[];
   tableValues!: string[][];
 
-  constructor(private httpService: HttpService, private messageService: MessageService) { }
+  private socket: Socket | undefined;
 
-  ngOnInit(): void {
+  constructor(private httpService: HttpService, private messageService: MessageService) {
+    this.socket = io(environment.SOCKET_ENDPOINT);
+    this.socket.on('error', (data: string) => {
+      this.messageService.add(JSON.parse(data).message, 'ERROR', 5000);
+    });
   }
 
   toggleSelectDropdown(): void {

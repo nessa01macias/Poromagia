@@ -252,10 +252,14 @@ async function getNumberOfCards(fromDate, toDate, type, res, next) {
                     count: { $sum: 1 } }
             }
         ]).toArray(function (err, result) {
-            if (err) next(err);
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get number of cards for the selected diagram!"}));
+                return next(err);
+            }
             res.status(200).send({data: result, labels: [label]});
         });
     } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get number of cards for the selected diagram!"}));
         next('Failed to get number of sorted cards in the given time period: ' + err);
     }
 }
@@ -308,10 +312,14 @@ app.get('/cardsCount/boxes', async (req, res, next) => {
                 }
             }
         ]).toArray(function (err, result) {
-            if (err) next(err);
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards for each box in the given time period!"}));
+                next(err);
+            }
             res.status(200).send({data: result, labels: ["Box 1", "Box 2", "Box 3", "Box 4"]});
         });
     } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards for each box in the given time period!"}));
         next('Failed to get number of sorted cards for each box in the given time period: ' + err);
     }
 });
@@ -337,10 +345,14 @@ app.get('/recognizeTimes', async (req, res, next) => {
             { $sort: { time: 1 } },
             { $project: { _id: "$_id", count: "$count" }}
         ]).toArray(function (err, result) {
-            if (err) next(err);
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get times to recognize cards in the given time period!"}));
+                next(err);
+            }
             res.status(200).send({data: result, labels: ["Number of cards"]});
         });
     } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get times to recognize cards in the given time period!"}));
         next('Failed to get times to recognize cards in the given time period: ' + err);
     }
 });
@@ -375,11 +387,15 @@ app.get('/cardsCount/categories', async (req, res, next) => {
                 }
             }
         ]).toArray(function (err, result) {
-            if (err) next(err);
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards in different categories in the given time period!"}));
+                return next(err);
+            }
             res.status(200).send({data: result, labels: ["Cards sorted by Price",
                     "Cards sorted by Stock", "Cards sorted by Wanted value"]});
         });
     } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards in different categories in the given time period!"}));
         next('Failed to get number of sorted cards in different categories in the given time period: ' + err);
     }
 });
@@ -402,10 +418,14 @@ app.get('/sortingData/categories', async (req, res, next) => {
                 }
             }
         ]).toArray(function (err, result) {
-            if (err) next(err);
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get start and end time of all categories in the given time period!"}));
+                return next(err);
+            }
             res.status(200).send({data: result, labels: ["Category", "Start time", "End time", "Duration"]});
         });
     } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get start and end time of all categories in the given time period!"}));
         next('Failed to get sorting data in the given time period: ' + err);
     }
 });
