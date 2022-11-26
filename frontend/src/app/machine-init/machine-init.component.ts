@@ -23,6 +23,9 @@ export class MachineInitComponent implements OnInit {
   editingUpperBoundary: boolean = false;
   keyboardValues: string[][] = [['1', '2', '3', '4', '5', '6', '7'], ['8', '9', '0', '.', 'Delete', 'Ok']];
 
+  private lowerBoundaryCursorPosition?: number;
+  private upperBoundaryCursorPosition?: number;
+
   constructor(private httpService: HttpService, private messageService: MessageService) { }
 
   ngOnInit(): void {
@@ -62,33 +65,43 @@ export class MachineInitComponent implements OnInit {
     this.machineStopped = true;
   }
 
-  editLowerBoundary(): void {
+  editLowerBoundary(event: any): void {
     this.keyboardDisplayed = true;
     this.editingLowerBoundary = true;
     this.editingUpperBoundary = false;
+    this.lowerBoundaryCursorPosition = event.target.selectionStart;
   }
 
-  editUpperBoundary(): void {
+  editUpperBoundary(event: any): void {
     this.keyboardDisplayed = true;
     this.editingUpperBoundary = true;
     this.editingLowerBoundary = false;
+    this.upperBoundaryCursorPosition = event.target.selectionStart;
   }
 
   enterKeyboardValue(pressedKey: string): void {
     if (!this.editingLowerBoundary && !this.editingUpperBoundary) return;
-    let editedValue = this.editingLowerBoundary ? this.lowerBoundary : this.upperBoundary;
+    let editedValuePre = this.editingLowerBoundary ? this.lowerBoundary.substring(0, this.lowerBoundaryCursorPosition)
+      : this.upperBoundary.substring(0, this.upperBoundaryCursorPosition);
+    let editedValuePost = this.editingLowerBoundary ? this.lowerBoundary.substring(this.lowerBoundaryCursorPosition || 0)
+      : this.upperBoundary.substring(this.upperBoundaryCursorPosition || 0);
+    let cursorPositionChange: number = 0;
+
     switch (pressedKey) {
       case '1': case '2': case '3': case '4': case '5':
       case '6': case '7': case '8': case '9': case '0':
-        editedValue += pressedKey;
+        editedValuePre += pressedKey;
+        cursorPositionChange++;
         break;
       case '.':
-        if (!editedValue.includes('.')) {
-          editedValue += pressedKey;
+        if (!editedValuePre.includes('.') && !editedValuePost.includes('.')) {
+          editedValuePre += pressedKey;
+          cursorPositionChange++;
         }
         break;
       case 'Delete':
-        editedValue = editedValue.substring(0, editedValue.length -1);
+        editedValuePre = editedValuePre.substring(0, editedValuePre.length - 1);
+        cursorPositionChange--;
         break;
       case 'Ok':
         this.editingLowerBoundary = false;
@@ -98,8 +111,19 @@ export class MachineInitComponent implements OnInit {
       default:
         this.messageService.add("Invalid keyboard value", 'ERROR', 2000);
     }
-    if (this.editingLowerBoundary) this.lowerBoundary = editedValue;
-    else if (this.editingUpperBoundary) this.upperBoundary = editedValue;
+
+    if (this.editingLowerBoundary) {
+      this.lowerBoundaryCursorPosition = this.lowerBoundaryCursorPosition !== undefined ?
+        this.lowerBoundaryCursorPosition + cursorPositionChange : cursorPositionChange;
+      this.lowerBoundaryCursorPosition = Math.max(this.lowerBoundaryCursorPosition, 0);
+      this.lowerBoundary = editedValuePre + editedValuePost;
+    }
+    else if (this.editingUpperBoundary) {
+      this.upperBoundaryCursorPosition = this.upperBoundaryCursorPosition !== undefined ?
+        this.upperBoundaryCursorPosition + cursorPositionChange : cursorPositionChange;
+      this.upperBoundaryCursorPosition = Math.max(this.upperBoundaryCursorPosition, 0);
+      this.upperBoundary = editedValuePre + editedValuePost
+    }
   }
 
   handleLowerBoundaryInput(): void {
