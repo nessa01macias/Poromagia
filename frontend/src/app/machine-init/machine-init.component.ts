@@ -27,7 +27,27 @@ export class MachineInitComponent implements OnInit {
   private upperBoundaryCursorPosition?: number;
   readonly maxInputLength: number = 13;
 
-  constructor(private httpService: HttpService, private messageService: MessageService) { }
+  /* possible keys and values for local storage */
+  private readonly machineStatusKey = 'MACHINE_STATUS';
+  private readonly statusKey = 'status';
+  private readonly lowerKey = 'lower';
+  private readonly upperKey = 'upper';
+  private readonly stopStatusValue = 'stopped';
+  private readonly runningStatusValue = 'running';
+
+  constructor(private httpService: HttpService, private messageService: MessageService) {
+    const storedMachineStatus = localStorage.getItem(this.machineStatusKey);
+    if (storedMachineStatus) {
+      const machineStatus = JSON.parse(storedMachineStatus);
+      if (this.stopStatusValue === machineStatus[this.statusKey]) {
+        this.machineStopped = true;
+      } else if (this.runningStatusValue === machineStatus[this.statusKey]) {
+        this.machineStopped = false;
+        this.lowerBoundary = machineStatus[this.lowerKey];
+        this.upperBoundary = machineStatus[this.upperKey];
+      }
+    }
+  }
 
   ngOnInit(): void {
     document.addEventListener('click', (event: MouseEvent) => {
@@ -56,6 +76,8 @@ export class MachineInitComponent implements OnInit {
 
       this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
       this.machineStopped = false;
+      localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.runningStatusValue,
+        lower: this.lowerBoundary, upper: this.upperBoundary}));
     } else {
       this.messageService.add("Cannot start sorting - no sorting category selected", 'ERROR', 5000);
     }
@@ -64,6 +86,7 @@ export class MachineInitComponent implements OnInit {
   pauseSorting(): void {
     this.httpService.pauseSorting();
     this.machineStopped = true;
+    localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.stopStatusValue}));
   }
 
   editLowerBoundary(event: any): void {
