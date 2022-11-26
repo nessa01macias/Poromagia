@@ -242,7 +242,7 @@ async function getNumberOfCards(fromDate, toDate, type, res, next) {
     try {
         await resultCollection.aggregate([
             { $match: {
-                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
+                    timestamp : { $gte : ISODate(fromDate), $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
                     $or: matchExpression
                 }
             },
@@ -290,7 +290,7 @@ app.get('/cardsCount/boxes', async (req, res, next) => {
     try {
         await resultCollection.aggregate([
             { $match: {
-                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
+                    timestamp : { $gte : ISODate(fromDate), $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
                     $or: [{ box: 1 }, { box: 2 }, { box: 3 }, { box: 4 }]
                 }
             },
@@ -329,7 +329,7 @@ app.get('/recognizeTimes', async (req, res, next) => {
     try {
         await resultCollection.aggregate([
             { $match: {
-                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)}
+                    timestamp : { $gte : ISODate(fromDate), $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)}
                 }
             },
             { $project: {
@@ -362,7 +362,7 @@ app.get('/cardsCount/categories', async (req, res, next) => {
     try {
         await sortingValuesCollection.aggregate([
             { $match: {
-                    start : { $lte : ISODate(toDate)},
+                    start : { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
                     $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
                 }
             },
@@ -405,7 +405,7 @@ app.get('/sortingData/categories', async (req, res, next) => {
     try {
         await sortingValuesCollection.aggregate([
             { $match: {
-                    start : { $lte : ISODate(toDate)},
+                    start : { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
                     $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
                 }
             },
