@@ -25,6 +25,7 @@ export class MachineInitComponent implements OnInit {
 
   private lowerBoundaryCursorPosition?: number;
   private upperBoundaryCursorPosition?: number;
+  readonly maxInputLength: number = 13;
 
   constructor(private httpService: HttpService, private messageService: MessageService) { }
 
@@ -81,6 +82,12 @@ export class MachineInitComponent implements OnInit {
 
   enterKeyboardValue(pressedKey: string): void {
     if (!this.editingLowerBoundary && !this.editingUpperBoundary) return;
+    if (this.editingLowerBoundary && this.lowerBoundary.length >= this.maxInputLength
+      || this.editingUpperBoundary && this.upperBoundary.length >= this.maxInputLength) {
+      this.messageService.add("Too long input - maximum input length is " + this.maxInputLength + " characters", 'WARNING', 4000);
+      return;
+    }
+
     let editedValuePre = this.editingLowerBoundary ? this.lowerBoundary.substring(0, this.lowerBoundaryCursorPosition)
       : this.upperBoundary.substring(0, this.upperBoundaryCursorPosition);
     let editedValuePost = this.editingLowerBoundary ? this.lowerBoundary.substring(this.lowerBoundaryCursorPosition || 0)
