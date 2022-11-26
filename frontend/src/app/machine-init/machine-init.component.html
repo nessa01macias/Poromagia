@@ -4,7 +4,7 @@
   <p>Select a sorting category</p>
   <div class="categoryButtons">
     <button *ngFor="let cat of sortingCategories" class="{{cat.selected ? 'selected' : ''}}"
-            (click)="selectCategory(cat.name)">{{cat.name}}</button>
+            (click)="selectCategory(cat.name)" [disabled]="!machineStopped">{{cat.name}}</button>
   </div>
   <div *ngIf="getConfigurable()">
     <p>Enter values</p>
@@ -12,15 +12,15 @@
       <div class="cardBox">1</div>
       <div><=</div>
       <span>
-        <input type="text" id="lowerBorder" [(ngModel)]="lowerBoundary" (click)="editLowerBoundary()"
-               class="{{editingLowerBoundary ? 'editMode keyboardDisplay' : 'keyboardDisplay'}}" (keydown)="handleLowerBoundaryInput()">
+        <input type="text" id="lowerBorder" [(ngModel)]="lowerBoundary" (click)="editLowerBoundary()" [disabled]="!machineStopped"
+               class="{{getInputCssClasses(true)}}" (keydown)="handleLowerBoundaryInput()">
         {{sortingCategories[selectedCatIndex].unit}}
       </span>
       <div><</div>
       <div class="cardBox">2</div>
       <div><=</div>
-      <span><input type="text" id="upperBorder" [(ngModel)]="upperBoundary" (click)="editUpperBoundary()"
-                   class="{{editingUpperBoundary ? 'editMode keyboardDisplay' : 'keyboardDisplay'}}" (keydown)="handleUpperBoundaryInput()">
+      <span><input type="text" id="upperBorder" [(ngModel)]="upperBoundary" (click)="editUpperBoundary()" [disabled]="!machineStopped"
+                   class="{{getInputCssClasses(false)}}" (keydown)="handleUpperBoundaryInput()">
         {{sortingCategories[selectedCatIndex].unit}}
       </span>
       <div><</div>
@@ -37,8 +37,13 @@
     </div>
   </div>
   <div class="submitButtons">
-    <button *ngIf="machineStopped" (click)="startSorting()" class="startStopButton">Start</button>
-    <button *ngIf="!machineStopped" (click)="pauseSorting()" class="startStopButton">Stop</button>
+    <button *ngIf="machineStopped" (click)="startSorting()" class="startStopButton"
+            [disabled]="!lowerBoundary || !upperBoundary || lowerBoundary >= upperBoundary">
+      Start
+    </button>
+    <button *ngIf="!machineStopped" (click)="pauseSorting()" class="startStopButton">
+      Stop
+    </button>
   </div>
 
   <div class="numberKeyboard keyboardDisplay" *ngIf="keyboardDisplayed">

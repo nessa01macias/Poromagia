@@ -36,6 +36,11 @@ h2 {
     padding: 1vw;
   }
 
+  input.invalid {
+    background-color: #d08282;
+    border: 3px solid darkred;
+  }
+
   .editMode {
     background-color: rgba(107, 158, 176, 0.3);
     border: 3px solid #6b9eb0;
@@ -79,7 +84,7 @@ h2 {
 
   background: rgb(199, 199, 199);
   border-radius: 10px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 1vw 2vh 3.5vh rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10.7px);
   -webkit-backdrop-filter: blur(10.7px);
   border: 1px solid rgba(174, 174, 174, 0.26);

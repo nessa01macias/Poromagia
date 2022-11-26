@@ -32,8 +32,10 @@ export class MachineInitComponent implements OnInit {
   }
 
   selectCategory(categoryName: string): void {
-    this.sortingCategories.forEach(cat => cat.selected = cat.name === categoryName);
-    this.selectedCatIndex = this.sortingCategories.findIndex(cat => cat.name === categoryName);
+    if (this.machineStopped) {
+      this.sortingCategories.forEach(cat => cat.selected = cat.name === categoryName);
+      this.selectedCatIndex = this.sortingCategories.findIndex(cat => cat.name === categoryName);
+    }
   }
 
   getConfigurable(): boolean {
@@ -115,6 +117,17 @@ export class MachineInitComponent implements OnInit {
       this.editingLowerBoundary = false;
       this.editingUpperBoundary = false;
     }
+  }
+
+  getInputCssClasses(lowerBoundary: boolean): string {
+    let classes = 'keyboardDisplay';
+    if (lowerBoundary && this.editingLowerBoundary || !lowerBoundary && this.editingUpperBoundary) {
+      classes += ' editMode';
+    }
+    if (this.lowerBoundary && this.upperBoundary && +this.lowerBoundary >= +this.upperBoundary) {
+      classes += ' invalid';
+    }
+    return classes;
   }
 
 }
