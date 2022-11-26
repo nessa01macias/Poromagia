@@ -66,13 +66,13 @@ class TextParser:
         gray_image = cv2.imread(self.__file_path, 0)
         gray_image = cv2.rotate(gray_image, cv2.ROTATE_90_CLOCKWISE)
         thresh, gray_thresh_image = cv2.threshold(gray_image, 80, 250, cv2.THRESH_BINARY)
-        Image.fromarray(gray_thresh_image).show()
+        #Image.fromarray(gray_thresh_image).show()
         # print(gray_thresh_image.shape)
         return gray_thresh_image
 
     def extract_text(self, rows, columns) -> str:
         roi_image = self.image[rows[0]:rows[1], columns[0]:columns[1]]
-        Image.fromarray(roi_image).show()
+        #Image.fromarray(roi_image).show()
 
         # applied noise removal
         roi_image = self.noise_removal(roi_image)

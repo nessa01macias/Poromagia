@@ -34,6 +34,7 @@
   top: -100%; left: 0; right: 0; bottom: 0;
   overflow: hidden;
   transition: all 0.3s ease-in-out;
+  z-index: 1;
 }
 
 nav {
@@ -74,7 +75,6 @@ nav a:hover {
   transform: rotate(45deg);
   margin-top: -1.3vh;
 }
-
 #menuToggle:checked + .hamburgerMenu + .nav {
   top: 0;
   transform: scale(1);

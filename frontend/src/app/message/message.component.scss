@@ -6,7 +6,6 @@
   left: 15vw;
 
   .message {
-    background-color: darkred;
     color: #FFFFFF;
     padding: 4vh;
     margin: 0.5vh;
@@ -17,6 +16,18 @@
     border-radius: 1em;
     z-index: 1;
     overflow-wrap: break-word;
+  }
+
+  .ERROR {
+    background-color: darkred;
+  }
+
+  .WARNING {
+    background-color: darkorange;
+  }
+
+  .SUCCESS {
+    background-color: darkgreen;
   }
 
   .closeButton {

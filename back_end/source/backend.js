@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const fetch = require('node-fetch');
 const mqtt = require('mqtt');
 const cors = require('cors');
+const ISODate = require('isodate');
 
 
 const app = express();
@@ -21,7 +22,6 @@ const io = require('socket.io')(http, {
 
 /* mongoDB database connection */
 let db = null;
-// const url = `mongodb://localhost:27017`;
 const url = `mongodb://127.0.0.1:27017`;
 const dbName = 'cardSorting';
 let sortingValuesCollection, resultCollection;
@@ -69,7 +69,7 @@ app.post('/start', (req, res, next) => {
     try {
         if (lowerBoundary === undefined || lowerBoundary === null
             || upperBoundary === undefined || upperBoundary === null) {
-            sortingValuesCollection.insertOne({ start: (new Date()).getTime(), category });
+            sortingValuesCollection.insertOne({ start: new Date(), category });
         } else {
             if (lowerBoundary >= upperBoundary) {
                 res.status(400).send({
@@ -77,7 +77,7 @@ app.post('/start', (req, res, next) => {
                         + ' and upper boundary ' + upperBoundary + ' - lower boundary is greater than or equal to upper boundary'
                 });
             }
-            sortingValuesCollection.insertOne({ start: (new Date()).getTime(), category, lowerBoundary, upperBoundary });
+            sortingValuesCollection.insertOne({ start: new Date(), category, lowerBoundary, upperBoundary });
         }
         mqttClient.publish(publishTopic, JSON.stringify({ status: 'start' }));
         return res.status(200).send({ message: "successfully send start status" });
@@ -92,7 +92,7 @@ app.post('/stop', (req, res, next) => {
             if (err) {
                 next('failed to get entry with latest start timestamp: ' + err);
             }
-            sortingValuesCollection.updateOne({ _id: items[0]._id }, { $set: { end: (new Date()).getTime() } });
+            sortingValuesCollection.updateOne({ _id: items[0]._id }, { $set: { end: new Date() } });
         });
         mqttClient.publish(publishTopic, JSON.stringify({ status: 'stop' }));
         return res.status(200).send({ message: "successfully sent stop status" });
@@ -117,7 +117,7 @@ function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
     }
 }
 
-function sendBoxValue(poromagiaData, cardId, res, cardLink) {
+function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
     let error = null;
     let userError = null;
     const price = poromagiaData.price;
@@ -147,38 +147,45 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink) {
             if (boxValue < 1 || boxValue > 3) {
                 error = 'failed to get price from Poromagia DB';
             } else {
-                io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: boxValue, imageLink: cardLink }));
-                resultCollection.insertOne({
-                    timestamp: (new Date()).getTime(), recognizedId: cardId.trim(),
-                    box: boxValue, price, stock, wanted
-                });
-                res.status(200).send({ boxNumber: boxValue });
+                io.emit('recognized card', JSON.stringify({price, stock, wanted, box: boxValue, imageLink: cardLink}));
+                resultCollection.updateOne({ _id: objectId }, { $set: { timestamp: new Date(),
+                        recognizedId: cardId.trim(), box: boxValue, price, stock, wanted } });
+                res.status(200).send({boxNumber: boxValue});
             }
         });
         if (error) {
             if (userError) {
-                sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink, userError);
+                sendRecognizeError(error, objectId, price, stock, wanted, cardId, res, cardLink, userError);
             }
-            sendRecognizeError(error, price, stock, wanted, cardId, res, cardLink);
+            sendRecognizeError(error, objectId, price, stock, wanted, cardId, res, cardLink);
         }
     } catch (err) {
-        sendRecognizeError('failed to get box value: ' + err,
+        sendRecognizeError('failed to get box value: ' + err, objectId,
             price, stock, wanted, cardId, res, cardLink, 'Failed to get box value');
     }
 }
 
-function sendRecognizeError(errorMessage, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
+function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
-    io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: 4, imageLink: cardLink }));
-    resultCollection.insertOne({
-        timestamp: (new Date()).getTime(), recognizedId: cardId,
-        box: 4, price, stock, wanted, error: errorMessage
-    });
-    io.emit('error', JSON.stringify({ message: errorMessageForUser }));
-    res.status(500).send({ boxNumber: 4 });
+    io.emit('recognized card', JSON.stringify({price, stock, wanted, box: 4, imageLink: cardLink}));
+    resultCollection.updateOne({ _id: objectId }, { $set: { timestamp: new Date(), recognizedId: cardId,
+            box: 4, price, stock, wanted } });
+    io.emit('error', JSON.stringify({message: errorMessageForUser}));
+    res.status(500).send({boxNumber: 4});
 }
 
-app.post('/recognize', async (req, res) => {
+app.post('/recognize', async (req, res, next) => {
+    const objectWithoutResultValues = {start: new Date()};
+    let objectId;
+    try {
+        resultCollection.insertOne(objectWithoutResultValues, (err) => {
+            if (err) return next("Failed to insert new result object with start timestamp: " + err);
+            objectId = objectWithoutResultValues._id;
+        });
+    } catch(err) {
+        return next("Failed to insert initial result object into database: " + err);
+    }
+
     //TODO: get pic from body and send to frontend
     let cardImage = req.query.filepath;
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
@@ -200,15 +207,15 @@ app.post('/recognize', async (req, res) => {
         console.debug("poromagia data: " + JSON.stringify(poromagiaData));
         if (!poromagiaData) {
             sendRecognizeError('Failed to get data from poromagia database for id "' + cardID + '"',
-                null, null, null, cardID, res, cardLink);
+                objectId, null, null, null, cardID, res, cardLink);
         }
 
-        sendBoxValue(poromagiaData, cardID, res, cardLink);
+        sendBoxValue(poromagiaData, cardID, res, cardLink, objectId);
     });
 
     childPython.stderr.on('data', (data) => {
         console.error('stderr:', data.toString());
-        sendRecognizeError('error in python child process: ' + data.toString(), null, null,
+        sendRecognizeError('error in python child process: ' + data.toString(), objectId, null, null,
             null, null, res, null, 'An error uccured while trying to recognize the card');
         childPython.stderr.removeAllListeners();
     });
@@ -216,6 +223,211 @@ app.post('/recognize', async (req, res) => {
     childPython.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
     });
+});
+
+
+/* endpoints to get data from database for statistics */
+
+async function getNumberOfCards(fromDate, toDate, type, res, next) {
+    let matchExpression;
+    let label;
+    switch (type) {
+        case 'all': matchExpression = [{}]; label = "Sorted cards"; break;
+        case 'recognized': matchExpression = [{ box: 1 }, { box: 2 }, { box: 3 }]; label = "Recognized cards"; break;
+        case 'notRecognized': matchExpression = [{ box: 4 }]; label = "Not recognized cards"; break;
+        case 1: case 2: case 3: case 4: matchExpression = [{ box: type }]; label = "Cards sorted in box " + type; break;
+        default: next("Failed to get number of cards - invalid type"); return;
+    }
+
+    try {
+        await resultCollection.aggregate([
+            { $match: {
+                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
+                    $or: matchExpression
+                }
+            },
+            { $sort: { timestamp: 1 } },
+            { $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp"} },
+                    count: { $sum: 1 } }
+            }
+        ]).toArray(function (err, result) {
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get number of cards for the selected diagram!"}));
+                return next(err);
+            }
+            res.status(200).send({data: result, labels: [label]});
+        });
+    } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get number of cards for the selected diagram!"}));
+        next('Failed to get number of sorted cards in the given time period: ' + err);
+    }
+}
+
+app.get('/cardsCount/all', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    await getNumberOfCards(fromDate, toDate, 'all', res, next);
+});
+
+app.get('/cardsCount/recognized', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    await getNumberOfCards(fromDate, toDate, 'recognized', res, next);
+});
+
+app.get('/cardsCount/notRecognized', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    await getNumberOfCards(fromDate, toDate, 'notRecognized', res, next);
+});
+
+app.get('/cardsCount/boxes/:id', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    const boxId = parseInt(req.params.id);
+    await getNumberOfCards(fromDate, toDate, boxId, res, next);
+});
+
+app.get('/cardsCount/boxes', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await resultCollection.aggregate([
+            { $match: {
+                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)},
+                    $or: [{ box: 1 }, { box: 2 }, { box: 3 }, { box: 4 }]
+                }
+            },
+            { $sort: { timestamp: 1 } },
+            { $project: {
+                    timestamp: "$timestamp",
+                    box1: { $cond: [ { $eq: [ "$box", 1 ] }, 1, 0 ] },
+                    box2: { $cond: [ { $eq: [ "$box", 2 ] }, 1, 0 ] },
+                    box3: { $cond: [ { $eq: [ "$box", 3 ] }, 1, 0 ] },
+                    box4: { $cond: [ { $eq: [ "$box", 4 ] }, 1, 0 ] },
+                }
+            },
+            { $group: {
+                    _id: {$dateToString: {format: "%Y-%m-%d", date: "$timestamp"}},
+                    count1: {$sum: "$box1"},
+                    count2: {$sum: "$box2"},
+                    count3: {$sum: "$box3"},
+                    count4: {$sum: "$box4"}
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards for each box in the given time period!"}));
+                next(err);
+            }
+            res.status(200).send({data: result, labels: ["Box 1", "Box 2", "Box 3", "Box 4"]});
+        });
+    } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards for each box in the given time period!"}));
+        next('Failed to get number of sorted cards for each box in the given time period: ' + err);
+    }
+});
+
+app.get('/recognizeTimes', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await resultCollection.aggregate([
+            { $match: {
+                    timestamp : { $gte : ISODate(fromDate), $lte : ISODate(toDate)}
+                }
+            },
+            { $project: {
+                time: { $trunc : { $divide: [{ $subtract: ["$timestamp", "$start"] }, 5000] } } //5s intervals
+            }},
+            { $group: {
+                _id: { $concat: [ { $substr: [{ $multiply: [ "$time", 5 ] }, 0, -1 ]}, " - ",
+                        { $substr: [{ $add: [ { $multiply: [ "$time", 5 ] }, 5 ] }, 0, -1 ] }, " s" ] },
+                    count: { $sum: 1 },
+                    time: { $first: "$time" }
+                }
+            },
+            { $sort: { time: 1 } },
+            { $project: { _id: "$_id", count: "$count" }}
+        ]).toArray(function (err, result) {
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get times to recognize cards in the given time period!"}));
+                next(err);
+            }
+            res.status(200).send({data: result, labels: ["Number of cards"]});
+        });
+    } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get times to recognize cards in the given time period!"}));
+        next('Failed to get times to recognize cards in the given time period: ' + err);
+    }
+});
+
+app.get('/cardsCount/categories', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await sortingValuesCollection.aggregate([
+            { $match: {
+                    start : { $lte : ISODate(toDate)},
+                    $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
+                }
+            },
+            { $sort: { start: 1 } },
+            { $project: {
+                    priceCat: {  // set to 1 if category is "Price"; 0 otherwise
+                        $cond: [ { $eq: [ "$category", "Price" ] }, 1, 0 ]
+                    },
+                    stockCat: {  // set to 1 if category is "Stock"; 0 otherwise
+                        $cond: [ { $eq: [ "$category", "Stock" ] }, 1, 0 ]
+                    },
+                    wantedCat: {  // set to 1 if category is "Wanted"; 0 otherwise
+                        $cond: [ { $eq: [ "$category", "Wanted" ] }, 1, 0 ]
+                    }
+                }
+            },
+            { $group: {
+                    _id: 'cards per category',
+                    price: { $sum: "$priceCat" },
+                    stock: { $sum: "$stockCat" },
+                    wanted: { $sum: "$wantedCat" }
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards in different categories in the given time period!"}));
+                return next(err);
+            }
+            res.status(200).send({data: result, labels: ["Cards sorted by Price",
+                    "Cards sorted by Stock", "Cards sorted by Wanted value"]});
+        });
+    } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get number of sorted cards in different categories in the given time period!"}));
+        next('Failed to get number of sorted cards in different categories in the given time period: ' + err);
+    }
+});
+
+app.get('/sortingData/categories', async (req, res, next) => {
+    const { fromDate, toDate } = req.query;
+    try {
+        await sortingValuesCollection.aggregate([
+            { $match: {
+                    start : { $lte : ISODate(toDate)},
+                    $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
+                }
+            },
+            { $sort: { start: 1 } },
+            { $project: {
+                    category: "$category",
+                    start: "$start",
+                    end: "$end",
+                    Time: { $trunc : { $divide: [{ $subtract: ["$end","$start"] }, 1000] } }
+                }
+            }
+        ]).toArray(function (err, result) {
+            if (err) {
+                io.emit('error', JSON.stringify({message: "Failed to get start and end time of all categories in the given time period!"}));
+                return next(err);
+            }
+            res.status(200).send({data: result, labels: ["Category", "Start time", "End time", "Duration"]});
+        });
+    } catch(err) {
+        io.emit('error', JSON.stringify({message: "Failed to get start and end time of all categories in the given time period!"}));
+        next('Failed to get sorting data in the given time period: ' + err);
+    }
 });
 
 

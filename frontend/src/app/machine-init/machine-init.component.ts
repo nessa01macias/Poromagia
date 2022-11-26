@@ -51,7 +51,7 @@ export class MachineInitComponent implements OnInit {
       this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
       this.machineStopped = false;
     } else {
-      this.messageService.add("Cannot start sorting - no sorting category selected", 5000);
+      this.messageService.add("Cannot start sorting - no sorting category selected", 'ERROR', 5000);
     }
   }
 
@@ -94,7 +94,7 @@ export class MachineInitComponent implements OnInit {
         this.keyboardDisplayed = false;
         break;
       default:
-        this.messageService.add("Invalid keyboard value", 2000);
+        this.messageService.add("Invalid keyboard value", 'ERROR', 2000);
     }
     if (this.editingLowerBoundary) this.lowerBoundary = editedValue;
     else if (this.editingUpperBoundary) this.upperBoundary = editedValue;

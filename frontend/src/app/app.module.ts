@@ -12,6 +12,7 @@ import { MessageComponent } from './message/message.component';
 import {MatIconModule} from '@angular/material/icon';
 import { ManualComponent } from './manual/manual.component';
 import { StatisticsComponent } from './statistics/statistics.component';
+import { GraphComponent } from './graph/graph.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { StatisticsComponent } from './statistics/statistics.component';
     NavigationComponent,
     MessageComponent,
     ManualComponent,
-    StatisticsComponent
+    StatisticsComponent,
+    GraphComponent
   ],
     imports: [
         BrowserModule,
