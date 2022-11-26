@@ -362,9 +362,14 @@ app.get('/cardsCount/categories', async (req, res, next) => {
     try {
         await sortingValuesCollection.aggregate([
             { $match: {
-                    start : { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
-                    $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
-                }
+                $or: [
+                    // start time is in given time period
+                    { start: { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24), $gte : ISODate(fromDate)}},
+                    // end time is in given time period
+                    { end: { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24), $gte : ISODate(fromDate)}},
+                    // start time is before and end time after given time period
+                    { $and: [{ start : { $lte : new Date((ISODate(fromDate)).getTime() + 1000 * 60 * 60 * 24) } }, { end: { $gte : ISODate(toDate) } }]}
+                ]}
             },
             { $sort: { start: 1 } },
             { $project: {
@@ -405,9 +410,14 @@ app.get('/sortingData/categories', async (req, res, next) => {
     try {
         await sortingValuesCollection.aggregate([
             { $match: {
-                    start : { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
-                    $or: [{ end: { $gte : ISODate(fromDate) } }, { end: {'$exists':false} }],
-                }
+                $or: [
+                    // start time is in given time period
+                    { start: { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24), $gte : ISODate(fromDate)}},
+                    // end time is in given time period
+                    { end: { $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24), $gte : ISODate(fromDate)}},
+                    // start time is before and end time after given time period
+                    { $and: [{ start : { $lte : new Date((ISODate(fromDate)).getTime() + 1000 * 60 * 60 * 24) } }, { end: { $gte : ISODate(toDate) } }]}
+                ]}
             },
             { $sort: { start: 1 } },
             { $project: {
