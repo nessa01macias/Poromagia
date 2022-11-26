@@ -2,11 +2,11 @@
   <app-navigation [activeIndex]="2"></app-navigation>
 
   <div class="selectorDropdown" *ngIf="!dropdownOpen">
-    <div>Select statistics type and time</div>
+    <div>Select time and diagram type</div>
     <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_down</mat-icon>
   </div>
-  <div class="openSelectorDropdown" *ngIf="dropdownOpen">
-    <div class="dateSelection">
+  <div class="{{dropdownOpen ? 'openSelectorDropdown isOpen' : 'openSelectorDropdown'}}">
+    <div class="dateSelection" *ngIf="dropdownOpen">
       <h3>Select the period of time:</h3>
       <div class="dateSelectors">
         <label for="fromDate">From: </label>
@@ -15,22 +15,22 @@
         <input type="date" id="toDate" [(ngModel)]="toDate" class="{{getDatesValidity() ? '' : 'invalid'}}">
       </div>
     </div>
-    <div class="typeSelection">
+    <div class="typeSelection" *ngIf="dropdownOpen">
       <h3>Select a diagram:</h3>
       <button *ngFor="let type of diagramTypes" class="{{type.selected ? 'selected' : ''}}"
               (click)="selectDiagramType(type.id)">{{type.text}}</button>
     </div>
-    <div class="submitButton">
+    <div class="submitButton" *ngIf="dropdownOpen">
       <div class="errorMessageContainer">
-        <div class="errorMessage" *ngIf="!getDatesValidity() || !typeIsSelected()">
+        <div class="errorMessage" *ngIf="!fromDate || !toDate || !getDatesValidity() || !typeIsSelected()">
           Selected values are invalid!
         </div>
       </div>
       <button (click)="toggleSelectDropdown()" [disabled]="!fromDate || !toDate || !getDatesValidity() || !typeIsSelected()">
-        Show graph
+        Show diagram
       </button>
     </div>
-    <mat-icon (click)="toggleSelectDropdown()">keyboard_arrow_up</mat-icon>
+    <mat-icon (click)="toggleSelectDropdown()" *ngIf="dropdownOpen">keyboard_arrow_up</mat-icon>
   </div>
 
   <div *ngIf="!dropdownOpen && !displayPreviousGraph && (!fromDate || !toDate || !typeIsSelected() || !getDatesValidity())" class="selectMessage">

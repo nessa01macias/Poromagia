@@ -15,9 +15,8 @@
 }
 
 .openSelectorDropdown {
-  height: 94vh;
-  padding-top: 2vh;
-  padding-bottom: 4vh;
+  height: 0;
+  transition: all 0.5s ease-in-out;
 
   h3 {
     text-align: left;
@@ -95,6 +94,12 @@
   }
 }
 
+.openSelectorDropdown.isOpen {
+  height: 94vh;
+  padding-top: 2vh;
+  padding-bottom: 4vh;
+}
+
 .selectMessage {
   height: 85vh;
   display: flex;
@@ -128,7 +133,7 @@
 }
 
 .doughnut {
-  width: 45vw;
+  width: 44vw;
   margin: 0 25vw;
 }
 
