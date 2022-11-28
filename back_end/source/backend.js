@@ -329,7 +329,9 @@ app.get('/recognizeTimes', async (req, res, next) => {
     try {
         await resultCollection.aggregate([
             { $match: {
-                    timestamp : { $gte : ISODate(fromDate), $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)}
+                    timestamp : { '$exists': true, $gte : ISODate(fromDate), $lte : new Date((ISODate(toDate)).getTime() + 1000 * 60 * 60 * 24)},
+                    start: { '$exists': true },
+                    $or : [{ box: 1 }, { box: 2 }, { box: 3 }]
                 }
             },
             { $project: {
