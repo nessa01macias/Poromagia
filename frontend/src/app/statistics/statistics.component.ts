@@ -2,8 +2,6 @@ import {Component} from '@angular/core';
 import {functionName, HttpService} from "../_services/http.service";
 import {chartType} from "../graph/graph.component";
 import {MessageService} from "../_services/message.service";
-import {io, Socket} from "socket.io-client";
-import {environment} from "../../environments/environment";
 
 type DiagramType = {
   id: number,
@@ -46,13 +44,7 @@ export class StatisticsComponent {
   tension!: number[];
   tableValues!: string[][];
 
-  private socket: Socket | undefined;
-
   constructor(private httpService: HttpService, private messageService: MessageService) {
-    this.socket = io(environment.SOCKET_ENDPOINT);
-    this.socket.on('error', (data: string) => {
-      this.messageService.add(JSON.parse(data).message, 'ERROR', 5000);
-    });
   }
 
   toggleSelectDropdown(): void {
