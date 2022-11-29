@@ -71,10 +71,10 @@ def remove_borders(image):
     return crop
 
 
-if __name__ == '__main__':
-    new = gray_thresh('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\1-rotated.jpg')
-    fixed = deskew(new)
-    Image.fromarray(new).show()
+# if __name__ == '__main__':
+    # new = gray_thresh('C:\\Users\\nessa\\Poromagia\\Poromagia\\back_end\\resources\\img\\1-rotated.jpg')
+    # fixed = deskew(new)
+    # Image.fromarray(new).show()
     # fixed = remove_borders(deskew(new))
     # Image.fromarray(fixed).show()
 

@@ -128,11 +128,11 @@ if __name__ == '__main__':
     # timing the code
     start_time = time.time()
 
-    image_match = ImageMatch(r"C:\Users\nessa\Poromagia\Poromagia\back_end\resources\img\2.jpg", "Mayhem Devil",
-                             "Creature Devil", "en", "Undefined")
-    print(image_match)
+    # image_match = ImageMatch(r"C:\Users\nessa\Poromagia\Poromagia\back_end\resources\img\2.jpg", "Mayhem Devil",
+    #                          "Creature Devil", "en", "Undefined")
+    # print(image_match)
 
-    end_time = time.time()
-    final_time = end_time - start_time
+    # end_time = time.time()
+    # final_time = end_time - start_time
 
-    print("Finding the match image took", final_time, "seconds")
+    # print("Finding the match image took", final_time, "seconds")

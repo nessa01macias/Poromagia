@@ -137,16 +137,16 @@ class TextParser:
         return f"Name: {self.parse_name()}, Type: {self.parse_type()}, Language: {self.get_language()}, Year: {self.parse_year()} "
 
 
-if __name__ == '__main__':
-    # timing the code
-    start_time = time.time()
+# if __name__ == '__main__':
+#     # timing the code
+#     start_time = time.time()
 
-    parser = TextParser(r'C:\Users\nessa\Poromagia\Poromagia\back_end\resources\img\test.jpg')
-    print(parser)
+#     parser = TextParser(r'C:\Users\nessa\Poromagia\Poromagia\back_end\resources\img\test.jpg')
+#     print(parser)
 
-    end_time = time.time()
-    final_time = end_time - start_time
+#     end_time = time.time()
+#     final_time = end_time - start_time
 
-    # card_file = parser.file_path
-    # print(card_file)
-    print("It took", final_time)
+#     # card_file = parser.file_path
+#     # print(card_file)
+#     print("It took", final_time)
