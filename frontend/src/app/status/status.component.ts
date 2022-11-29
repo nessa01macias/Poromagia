@@ -18,7 +18,27 @@ export class StatusComponent implements OnInit {
   recognizedImageLink: string = '';
   waitingForResult: boolean = false;
 
+  /* keys and values for local storage */
+  private readonly recognizeCardStatus = 'CARD_STATUS';
+  private readonly takenImageKey = 'takenImage';
+  private readonly recognizedImageKey = 'recognizedImage';
+  private readonly priceKey = 'price';
+  private readonly stockKey = 'stock';
+  private readonly wantedKey = 'wanted';
+  private readonly boxKey = 'box';
+
   constructor(private messageService: MessageService, private websocketService: WebsocketService) {
+    const storedStatus = localStorage.getItem(this.recognizeCardStatus);
+    if (storedStatus) {
+      const storedStatusParsed = JSON.parse(storedStatus);
+      this.takenImageSrc = storedStatusParsed[this.takenImageKey];
+      this.recognizedImageLink = storedStatusParsed[this.recognizedImageKey];
+      this.price = storedStatusParsed[this.priceKey];
+      this.stock = storedStatusParsed[this.stockKey];
+      this.wanted = storedStatusParsed[this.wantedKey];
+      this.boxNumber = storedStatusParsed[this.boxKey];
+      if (this.takenImageSrc && !this.recognizedImageLink) this.waitingForResult = true;
+    }
   }
 
   ngOnInit(): void {
@@ -39,11 +59,22 @@ export class StatusComponent implements OnInit {
     this.boxNumber = parsedData.box;
     this.recognizedImageLink = parsedData.imageLink;
     this.waitingForResult = false;
+
+    // store values in local storage
+    const storedStatus = localStorage.getItem(this.recognizeCardStatus);
+    const storedStatusParsed = storedStatus ? JSON.parse(storedStatus) : {};
+    storedStatusParsed[this.recognizedImageKey] = this.recognizedImageLink;
+    storedStatusParsed[this.priceKey] = this.price;
+    storedStatusParsed[this.stockKey] = this.stock;
+    storedStatusParsed[this.wantedKey] = this.wanted;
+    storedStatusParsed[this.boxKey] = this.boxNumber;
+    localStorage.setItem(this.recognizeCardStatus, JSON.stringify(storedStatusParsed));
   }
 
   private imageReceivedListener = (data: string): void => {
     this.takenImageSrc = JSON.parse(data).imgSrc;
     this.waitingForResult = true;
+    localStorage.setItem(this.recognizeCardStatus, JSON.stringify({[this.takenImageKey]: this.takenImageSrc}));
   }
 
 }

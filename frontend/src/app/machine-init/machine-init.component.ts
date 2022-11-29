@@ -27,7 +27,7 @@ export class MachineInitComponent implements OnInit {
   private upperBoundaryCursorPosition?: number;
   readonly maxInputLength: number = 13;
 
-  /* possible keys and values for local storage */
+  /* keys and values for local storage */
   private readonly machineStatusKey = 'MACHINE_STATUS';
   private readonly statusKey = 'status';
   private readonly lowerKey = 'lower';

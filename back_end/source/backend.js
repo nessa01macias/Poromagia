@@ -216,7 +216,7 @@ app.post('/recognize', async (req, res, next) => {
     childPython.stderr.on('data', (data) => {
         console.error('stderr:', data.toString());
         sendRecognizeError('error in python child process: ' + data.toString(), objectId, null, null,
-            null, null, res, null, 'An error uccured while trying to recognize the card');
+            null, null, res, null, 'An error occurred while trying to recognize the card');
         childPython.stderr.removeAllListeners();
     });
 
