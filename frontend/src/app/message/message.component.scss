@@ -7,7 +7,7 @@
   z-index: 1;
 
   .message {
-    color: #FFFFFF;
+    color: #fff;
     padding: 4vh;
     margin: 0.5vh;
     width: 70vw;
@@ -20,15 +20,15 @@
   }
 
   .ERROR {
-    background-color: darkred;
+    background-color: var(--error-color);
   }
 
   .WARNING {
-    background-color: darkorange;
+    background-color: var(--warning-color);
   }
 
   .SUCCESS {
-    background-color: darkgreen;
+    background-color: var(--success-color);
   }
 
   .closeButton {

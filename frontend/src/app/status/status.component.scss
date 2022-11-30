@@ -18,7 +18,7 @@
     align-items: center;
 
     p, mat-icon {
-      color: darkred;
+      color: var(--error-color);
       font-weight: bold;
     }
 
@@ -45,7 +45,7 @@
     width: 25vw;
     margin: 2vw;
     padding: 2vw;
-    background-color: #6b9eb0;
+    background-color: var(--blue-mid);
     border-radius: 5%;
 
     .boxResult {
@@ -69,9 +69,10 @@
 
     .loadingSpinner {
       display: inline-block;
-      width: 20vw;
-      height: 20vw;
+      width: 25vw;
+      height: 25vw;
       margin-top: 12vh;
+      padding-left: 10vw;
     }
     .loadingSpinner div {
       animation: loadingSpinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
@@ -83,7 +84,7 @@
       width: 1.2vw;
       height: 1.2vw;
       border-radius: 50%;
-      background: #6b9eb0;
+      background: var(--blue-mid);
       margin: -4px 0 0 -4px;
     }
     .loadingSpinner div:nth-child(1) {
@@ -162,6 +163,6 @@
   div {
     width: 10vw;
     height: 10vw;
-    background-color: #ababab;
+    background-color: var(--grey-basic);
   }
 }

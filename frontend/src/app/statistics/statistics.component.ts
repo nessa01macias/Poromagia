@@ -25,7 +25,7 @@ export class StatisticsComponent {
     {id: 0, chartType: 'line', text: 'Sorted cards', selected: false, endpointMethod: 'ALL_CARDS', combinableWith: [1, 2, 3]},
     {id: 1, chartType: 'line', text: 'Recognized cards', selected: false, endpointMethod: 'RECOGNIZED_CARDS', combinableWith: [0, 2, 3]},
     {id: 2, chartType: 'line', text: 'Not recognized cards', selected: false, endpointMethod: 'NOT_RECOGNIZED_CARDS', combinableWith: [0, 1, 3]},
-    {id: 3, chartType: 'line', text: 'Cards sorted in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES', combinableWith: [0, 1, 2]},
+    {id: 3, chartType: 'line', text: 'Cards in boxes', selected: false, endpointMethod: 'CARDS_IN_BOXES', combinableWith: [0, 1, 2]},
     {id: 4, chartType: 'doughnut', text: 'Cards per category', selected: false, endpointMethod: 'CATEGORIES_COUNT', combinableWith: []},
     {id: 5, chartType: 'table', text: 'Start and end time for categories', selected: false, endpointMethod: 'SORTING_DATA_CATEGORIES', combinableWith: []},
     {id: 6, chartType: 'bar', text: 'Time to sort a card', selected: false, endpointMethod: 'RECOGNIZE_TIMES', combinableWith: []}

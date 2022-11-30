@@ -11,7 +11,7 @@ h2 {
   width: 94vw;
   margin: 2vh 1vw 0;
   padding: 2vh;
-  background-color: #93bbc9;
+  background-color: var(--blue-light);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -27,7 +27,7 @@ h2 {
 
 .pageManual {
   width: 90vw;
-  background-color: rgba(147, 187, 201, 0.4);
+  background-color: var(--blue-background);
   margin: 0 2vw;
   padding: 2vw;
   border-radius: 10px;

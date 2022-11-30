@@ -18,7 +18,7 @@
   width: 6vw;
   height: 1vh;
   border-radius: 3px;
-  background-color: #000000;
+  background-color: black;
   margin-top: 2vh;
   transition: all 0.3s ease-in-out;
 }
@@ -29,7 +29,7 @@
   position: fixed;
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: white;
   opacity: 0.95;
   top: -100%; left: 0; right: 0; bottom: 0;
   overflow: hidden;
@@ -54,11 +54,11 @@ nav a {
 }
 
 nav a:hover {
-  background-color: #6b9eb0;
+  background-color: var(--blue-mid);
 }
 
 .active {
-  background-color: #93bbc9;
+  background-color: var(--blue-light);
 }
 
 /* Animations */

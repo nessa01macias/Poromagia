@@ -1,5 +1,18 @@
 /* global styles */
 
+:root {
+  --grey-basic: #ababab;
+  --grey-mid: rgb(199, 199, 199);
+  --grey-light: #f2f2f2;
+  --grey-background: rgba(174, 174, 174, 0.26);
+  --blue-light: #93bbc9;
+  --blue-mid: #6b9eb0;
+  --blue-background: rgba(147, 187, 201, 0.4);
+  --error-color: darkred;
+  --error-background: #d08282;
+  --warning-color: darkorange;
+  --success-color: darkgreen;
+}
 
 /* general */
 
