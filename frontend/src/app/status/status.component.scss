@@ -8,6 +8,28 @@
     margin: 2vw;
   }
 
+  .notFoundCard {
+    width: 22vw;
+    height: 58vh;
+    margin-top: 5vh;
+    border: 5px solid black;
+    border-radius: 4%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    p, mat-icon {
+      color: darkred;
+      font-weight: bold;
+    }
+
+    mat-icon {
+      transform: scale(4);
+      margin: 10vh;
+    }
+  }
+
   .arrow {
     width: 15vw;
     text-align: center;

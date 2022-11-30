@@ -3,7 +3,13 @@
   <div class="images">
     <div class="takenPic">
       <h3>Current image</h3>
-      <img src="{{takenImageSrc}}" alt="photo of current card"> <!--TODO: use taken pic-->
+      <img *ngIf="takenImageSrc" src="{{takenImageSrc}}" alt="photo of current card"> <!--TODO: use taken pic-->
+      <div *ngIf="!takenImageSrc">
+        <div class="notFoundCard">
+          <mat-icon>close</mat-icon>
+          <p>Image not found!</p>
+        </div>
+      </div>
     </div>
     <div class="arrow">
       <mat-icon>arrow_forward</mat-icon>
@@ -11,7 +17,13 @@
     <div class="recognizedPic">
       <h3>Recognized card</h3>
       <div class="loadingSpinner" *ngIf="waitingForResult"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-      <img *ngIf="!waitingForResult" src="{{recognizedImageLink}}" alt="image of recognized card">
+      <img *ngIf="!waitingForResult && recognizedImageLink" src="{{recognizedImageLink}}" alt="image of recognized card">
+      <div *ngIf="!recognizedImageLink && !waitingForResult">
+        <div class="notFoundCard">
+          <mat-icon>close</mat-icon>
+          <p>Image not found!</p>
+        </div>
+      </div>
     </div>
     <div class="cardData">
       <h3>Card data:</h3>
