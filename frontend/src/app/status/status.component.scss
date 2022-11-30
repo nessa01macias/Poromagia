@@ -5,13 +5,11 @@
 
   img {
     width: 25vw;
-    margin: 2vw;
   }
 
   .notFoundCard {
-    width: 22vw;
-    height: 58vh;
-    margin-top: 5vh;
+    width: 23vw;
+    height: 60vh;
     border: 5px solid black;
     border-radius: 4%;
     display: flex;
@@ -39,11 +37,26 @@
     }
   }
 
+  .padding {
+    height: 12vh;
+  }
+
   .cardData {
     width: 25vw;
     margin: 2vw;
     padding: 2vw;
     background-color: #6b9eb0;
+    border-radius: 5%;
+
+    .boxResult {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      mat-icon {
+        margin: 0 1vw;
+      }
+    }
   }
 
   .recognizedPic, .takenPic {
