@@ -6,7 +6,7 @@ const mqtt = require('mqtt');
 const cors = require('cors');
 const ISODate = require('isodate');
 const dotenv = require('dotenv').config();
-
+const path = require('path');
 
 const app = express();
 const http = require('http').createServer(app);
@@ -20,7 +20,6 @@ if (process.env.NODE_ENV === 'production') {
             path.resolve(__dirname, '../../', 'frontend', 'dist', 'index.html')
         )
     );
-
 }
 
 /* websocket server */
@@ -71,9 +70,13 @@ const { spawn } = require('child_process');
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
-
 app.use(cors({ origin: ["http://localhost:4200"], }));
 
+/**
+ * checks and inserts the sorting value (start time, category, lower and upper boundary) in the database
+ * and publishes the start status via mqtt afterwards
+ * @param req http request containing the category and the lower and upper boundary in the request body
+ */
 app.post('/start', (req, res, next) => {
     const { category, lowerBoundary, upperBoundary } = req.body;
     console.debug("cat: " + category + ", lower: " + lowerBoundary + ", upper: " + upperBoundary);
@@ -99,6 +102,9 @@ app.post('/start', (req, res, next) => {
     }
 });
 
+/**
+ * adds the end time to the latest sorting value entry in the database and publishes the stop status via mqtt afterwards
+ */
 app.post('/stop', (req, res, next) => {
     try {
         sortingValuesCollection.find({}).sort({ start: -1 }).toArray((err, items) => {
@@ -114,6 +120,13 @@ app.post('/stop', (req, res, next) => {
     }
 });
 
+/**
+ * compares the current card's value in the selected category to the lower and upper boundary to get the box value
+ * @param cardValue the current card's value of the selected category property
+ * @param lowerBoundary the currently set lower boundary value in the selected category
+ * @param upperBoundary the currently set upper boundary value in the selected category
+ * @return {number} the number of the box in which the current card should be sorted
+ */
 function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
     if (cardValue === undefined || cardValue === null) {
         return 4;
@@ -130,6 +143,15 @@ function getBoxValue(cardValue, lowerBoundary, upperBoundary) {
     }
 }
 
+/**
+ * gets the current sorting values (category, lower and upper boundary) from the database and compares it to the current card's values to get the box value
+ * and sends the result or the error message via websockets to the frontend and via http response to the requester
+ * @param poromagiaData the card data of the recognized card from Poromagia's database
+ * @param cardId the id of the recognized card (this id is used in the scryfall and in Poromagia's database)
+ * @param res the http response
+ * @param cardLink the url to the picture of the recognized card
+ * @param objectId the id of the database entry for the current card (used to update the database entry)
+ */
 function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
     let error = null;
     let userError = null;
@@ -137,6 +159,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
     const stock = poromagiaData.stock;
     const wanted = poromagiaData.wanted;
     try {
+        // gets the sorting values of the latest database entry
         sortingValuesCollection.find({}).sort({ start: -1 }).toArray((err, items) => {
             if (err) {
                 error = 'failed to get entry with latest start timestamp: ' + err;
@@ -158,8 +181,9 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
             }
 
             if (boxValue < 1 || boxValue > 3) {
-                error = 'failed to get price from Poromagia DB';
+                error = "failed to get box value - no data from Poromagia's database for the current card found";
             } else {
+                // send result via websocket, update database entry and send http response with the box to sort the current card in
                 io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: boxValue, imageLink: cardLink }));
                 resultCollection.updateOne({ _id: objectId }, {
                     $set: {
@@ -182,6 +206,20 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
     }
 }
 
+/**
+ * this function is called when an error occurs while trying to recognize the card
+ * logs the error message in the console, sends an error message via websockets, updates the database entry for the current card
+ * and sends the box number 4 (not recognized) via http response
+ * @param errorMessage the error message to be logged in the console
+ * @param objectId the id of the database entry for the current card (used to update the database entry)
+ * @param price the price of the recognized card (data from Poromagia's database)
+ * @param stock the stock value of the recognized card (data from Poromagia's database)
+ * @param wanted the wanted value of the recognized card (data from Poromagia's database)
+ * @param cardId the id of the recognized card (this id is used in the scryfall and in Poromagia's database)
+ * @param res the http response
+ * @param cardLink the url to the picture of the recognized card
+ * @param errorMessageForUser the error message which is sent via websockets to be displayed in the frontend for the user; default value is the "normal" error message
+ */
 function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId, res, cardLink, errorMessageForUser = errorMessage) {
     console.error("Error in recognize card: " + errorMessage);
     io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: 4, imageLink: cardLink }));
@@ -195,31 +233,40 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
     res.status(500).send({ boxNumber: 4 });
 }
 
+/**
+ * calls the computer vision model (as python child process) to recognize the current card by the taken image
+ * saves the result in the database and sends it via websockets and http response
+ * @param req http request containing the taken image in the request body
+ */
 app.post('/recognize', async (req, res, next) => {
+    // save the start time in the database before processing the data
     const objectWithoutResultValues = { start: new Date() };
     let objectId;
     try {
         resultCollection.insertOne(objectWithoutResultValues, (err) => {
             if (err) return next("Failed to insert new result object with start timestamp: " + err);
+            // save the object id of the database entry to update the entry later
             objectId = objectWithoutResultValues._id;
         });
     } catch (err) {
         return next("Failed to insert initial result object into database: " + err);
     }
 
-    //TODO: get pic from body and send to frontend
+    //TODO: get pic from body and send to frontend (change in comment)
     let cardImage = req.query.filepath;
+    // call the computer vision model to recognize the card
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
 
     // only for testing TODO: remove
     io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/f/2/f295b713-1d6a-43fd-910d-fb35414bf58a.jpg" }));
 
+    // listener to process the data returned by the computer vision model
     childPython.stdout.on('data', async (data) => {
         const recognizedData = JSON.parse(data.toString());
         const cardID = recognizedData.card_id;
         const cardLink = recognizedData.card_link;
 
-        // get data from poromagia database
+        // get data from Poromagia database
         const options = {
             "method": "GET",
         };
@@ -234,6 +281,7 @@ app.post('/recognize', async (req, res, next) => {
         sendBoxValue(poromagiaData, cardID, res, cardLink, objectId);
     });
 
+    // listener to recognize and handle errors while trying to recognize the card
     childPython.stderr.on('data', (data) => {
         console.error('stderr:', data.toString());
         sendRecognizeError('error in python child process: ' + data.toString(), objectId, null, null,
@@ -241,6 +289,7 @@ app.post('/recognize', async (req, res, next) => {
         childPython.stderr.removeAllListeners();
     });
 
+    // listener to recognize when connection to computer vision model is closed
     childPython.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
     });
@@ -249,6 +298,16 @@ app.post('/recognize', async (req, res, next) => {
 
 /* endpoints to get data from database for statistics */
 
+/**
+ * gets database entries of recognized cards in the given time period that comply with the given type,
+ * groups them by the day on which the card was recognized and counts the number of cards per day
+ * sends the result (number of cards per day in the given time period) and the labels for the graph via http response
+ * @param fromDate the start date of the requested time period
+ * @param toDate the end date of the requested time period
+ * @param type the type of the requested data (all cards, only recognized cards, only not recognized cards or only cards sorted in the box with the given number)
+ * @param res the http response
+ * @param next function to forward errors to the error middleware
+ */
 async function getNumberOfCards(fromDate, toDate, type, res, next) {
     let matchExpression;
     let label;
@@ -288,27 +347,47 @@ async function getNumberOfCards(fromDate, toDate, type, res, next) {
     }
 }
 
+/**
+ * gets the number of sorted cards per day in the given time period and sends the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/cardsCount/all', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     await getNumberOfCards(fromDate, toDate, 'all', res, next);
 });
 
+/**
+ * gets the number of recognized cards (box 1, 2 or 3) per day in the given time period and sends the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/cardsCount/recognized', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     await getNumberOfCards(fromDate, toDate, 'recognized', res, next);
 });
 
+/**
+ * gets the number of not recognized cards per day in the given time period and sends the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/cardsCount/notRecognized', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     await getNumberOfCards(fromDate, toDate, 'notRecognized', res, next);
 });
 
+/**
+ * gets the number of cards sorted in the box with the given id per day in the given time period and sends the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters and the number of the requested box in the url
+ */
 app.get('/cardsCount/boxes/:id', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     const boxId = parseInt(req.params.id);
     await getNumberOfCards(fromDate, toDate, boxId, res, next);
 });
 
+/**
+ * gets the number of cards per box in the given time period and sends the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/cardsCount/boxes', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {
@@ -351,6 +430,11 @@ app.get('/cardsCount/boxes', async (req, res, next) => {
     }
 });
 
+/**
+ * calculates the time it took to recognize a card (including saving the result in the database and sending it via websocket and http response),
+ * splits the recognize-times into 5s intervals, counts the number of cards for each interval and sends the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/recognizeTimes', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {
@@ -392,6 +476,10 @@ app.get('/recognizeTimes', async (req, res, next) => {
     }
 });
 
+/**
+ * counts how often the machine ran for each category in the given time period and returns the result via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/cardsCount/categories', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {
@@ -436,8 +524,7 @@ app.get('/cardsCount/categories', async (req, res, next) => {
                 return next(err);
             }
             res.status(200).send({
-                data: result, labels: ["Cards sorted by Price",
-                    "Cards sorted by Stock", "Cards sorted by Wanted value"]
+                data: result, labels: ["Cards sorted by Price", "Cards sorted by Stock", "Cards sorted by Wanted value"]
             });
         });
     } catch (err) {
@@ -446,6 +533,11 @@ app.get('/cardsCount/categories', async (req, res, next) => {
     }
 });
 
+/**
+ * gets all sorting data entries in the given time period and sends the category, the start and end time
+ * and the time the machine was running for each entry via http response
+ * @param req http request containing the start and end date of the requested time period in the query parameters
+ */
 app.get('/sortingData/categories', async (req, res, next) => {
     const { fromDate, toDate } = req.query;
     try {
