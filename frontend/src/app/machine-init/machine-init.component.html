@@ -46,7 +46,7 @@
   </div>
   <div class="submitButtons">
     <button *ngIf="machineStopped" (click)="startSorting()" class="startStopButton"
-            [disabled]="!lowerBoundary || !upperBoundary || lowerBoundary >= upperBoundary">
+            [disabled]="getConfigurable() && (!lowerBoundary || !upperBoundary || lowerBoundary >= upperBoundary)">
       Start
     </button>
     <button *ngIf="!machineStopped" (click)="pauseSorting()" class="startStopButton">

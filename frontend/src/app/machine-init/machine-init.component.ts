@@ -78,6 +78,7 @@ export class MachineInitComponent implements OnInit {
       this.machineStopped = false;
       localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.runningStatusValue,
         lower: this.lowerBoundary, upper: this.upperBoundary}));
+      this.messageService.add('Machine was started', 'SUCCESS', 3000);
     } else {
       this.messageService.add("Cannot start sorting - no sorting category selected", 'ERROR', 5000);
     }
@@ -87,6 +88,7 @@ export class MachineInitComponent implements OnInit {
     this.httpService.pauseSorting();
     this.machineStopped = true;
     localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.stopStatusValue}));
+    this.messageService.add('Machine was stopped', 'SUCCESS', 3000);
   }
 
   editLowerBoundary(event: any): void {
