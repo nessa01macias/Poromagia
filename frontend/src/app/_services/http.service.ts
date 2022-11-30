@@ -16,7 +16,7 @@ export class HttpService {
 
   constructor(private http: HttpClient) { }
 
-  startSorting(selectedCategory: string, lowerBoundary: number, upperBoundary: number): void {
+  startSorting(selectedCategory: string, lowerBoundary: number | boolean, upperBoundary: number | boolean): void {
     this.http.post("http://localhost:3000/start",
       JSON.stringify({category: selectedCategory, lowerBoundary, upperBoundary}), httpOptions)
       .subscribe(res => console.debug("start sorting response: " + JSON.stringify(res)));

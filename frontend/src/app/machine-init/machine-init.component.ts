@@ -79,7 +79,11 @@ export class MachineInitComponent implements OnInit {
       this.lowerBoundary = (this.lowerBoundary.match(/^[0-9]*(?:\.[0-9]*)?/g) || []).join('');
       this.upperBoundary = (this.upperBoundary.match(/^[0-9]*(?:\.[0-9]*)?/g) || []).join('');
 
-      this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
+      if (this.selectedCatIndex === 2) {
+        this.httpService.startSorting(selectedCategory.name, true, false);
+      } else {
+        this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
+      }
       this.machineStopped = false;
       localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.runningStatusValue,
         [this.categoryKey]: this.selectedCatIndex, [this.lowerKey]: this.lowerBoundary, [this.upperKey]: this.upperBoundary}));

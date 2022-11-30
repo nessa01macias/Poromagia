@@ -82,8 +82,10 @@ app.post('/start', (req, res, next) => {
             || upperBoundary === undefined || upperBoundary === null) {
             sortingValuesCollection.insertOne({ start: new Date(), category });
         } else {
-            if (lowerBoundary >= upperBoundary) {
-                res.status(400).send({
+            if (typeof lowerBoundary === "number" && typeof upperBoundary === "number" && lowerBoundary >= upperBoundary) {
+                console.error('Invalid arguments - lower boundary ' + lowerBoundary
+                    + ' is greater than or equal to upper boundary ' + upperBoundary);
+                return res.status(400).send({
                     error: 'cannot set sorting values to lower boundary ' + lowerBoundary
                         + ' and upper boundary ' + upperBoundary + ' - lower boundary is greater than or equal to upper boundary'
                 });
