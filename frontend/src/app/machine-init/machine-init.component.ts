@@ -11,7 +11,7 @@ import {MessageService} from "../_services/message.service";
 })
 export class MachineInitComponent implements OnInit {
 
-  sortingCategories: SortingCategory[] = [SortingCategory.PRICE, SortingCategory.STOCK, SortingCategory.WANTED];
+  readonly sortingCategories: SortingCategory[] = [SortingCategory.PRICE, SortingCategory.STOCK, SortingCategory.WANTED];
 
   lowerBoundary: string = '';
   upperBoundary: string = '';
@@ -21,7 +21,7 @@ export class MachineInitComponent implements OnInit {
   keyboardDisplayed: boolean = false;
   editingLowerBoundary: boolean = false;
   editingUpperBoundary: boolean = false;
-  keyboardValues: string[][] = [['1', '2', '3', '4', '5', '6', '7'], ['8', '9', '0', '.', 'Delete', 'Ok']];
+  readonly keyboardValues: string[][] = [['1', '2', '3', '4', '5', '6', '7'], ['8', '9', '0', '.', 'Delete', 'Ok']];
 
   private lowerBoundaryCursorPosition?: number;
   private upperBoundaryCursorPosition?: number;
@@ -30,6 +30,7 @@ export class MachineInitComponent implements OnInit {
   /* keys and values for local storage */
   private readonly machineStatusKey = 'MACHINE_STATUS';
   private readonly statusKey = 'status';
+  private readonly categoryKey = 'category';
   private readonly lowerKey = 'lower';
   private readonly upperKey = 'upper';
   private readonly stopStatusValue = 'stopped';
@@ -45,6 +46,10 @@ export class MachineInitComponent implements OnInit {
         this.machineStopped = false;
         this.lowerBoundary = machineStatus[this.lowerKey];
         this.upperBoundary = machineStatus[this.upperKey];
+        this.selectedCatIndex = machineStatus[this.categoryKey];
+        for (let i = 0; i < this.sortingCategories.length; i++) {
+          this.sortingCategories[i].selected = i === this.selectedCatIndex;
+        }
       }
     }
   }
@@ -77,7 +82,7 @@ export class MachineInitComponent implements OnInit {
       this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
       this.machineStopped = false;
       localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.runningStatusValue,
-        lower: this.lowerBoundary, upper: this.upperBoundary}));
+        [this.categoryKey]: this.selectedCatIndex, [this.lowerKey]: this.lowerBoundary, [this.upperKey]: this.upperBoundary}));
       this.messageService.add('Machine was started', 'SUCCESS', 3000);
     } else {
       this.messageService.add("Cannot start sorting - no sorting category selected", 'ERROR', 5000);
