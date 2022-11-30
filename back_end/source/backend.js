@@ -49,8 +49,11 @@ MongoClient.connect(process.env.MONGO_URI, {
 
 /* mqtt client */
 const addr = process.argv.slice(2) && process.argv.slice(2).length > 0 ?
-    'mqtt://' + process.argv.slice(2) + ':1883' : 'mqtt://192.168.1.10:1883';
-const mqttClient = mqtt.connect(addr);
+    'mqtt://' + process.argv.slice(2) + ':2048' : 'mqtt://hetkinen.ddns.net:2048';
+const mqttClient = mqtt.connect(addr, {
+    username: process.env.MQTT_USERNAME,
+    password: process.env.MQTT_PASSWORD
+});
 const publishTopic = "statusChange";
 
 mqttClient.on('error', (err) => {
@@ -66,11 +69,12 @@ mqttClient.on('connect', () => {
 /* http routes */
 
 const { spawn } = require('child_process');
+let machineStatus = 0;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cors({ origin: ["http://localhost:4200"], }));
+app.use(cors({ origin: ["http://localhost:4200"] }));
 
 /**
  * checks and inserts the sorting value (start time, category, lower and upper boundary) in the database
@@ -95,7 +99,8 @@ app.post('/start', (req, res, next) => {
             }
             sortingValuesCollection.insertOne({ start: new Date(), category, lowerBoundary, upperBoundary });
         }
-        mqttClient.publish(publishTopic, JSON.stringify({ status: 'start' }));
+        machineStatus = 1;
+        mqttClient.publish(publishTopic, JSON.stringify({ status: 1, decision: 0 }));
         return res.status(200).send({ message: "successfully send start status" });
     } catch (err) {
         next('failed to insert sorting values in db: ' + err);
@@ -113,7 +118,8 @@ app.post('/stop', (req, res, next) => {
             }
             sortingValuesCollection.updateOne({ _id: items[0]._id }, { $set: { end: new Date() } });
         });
-        mqttClient.publish(publishTopic, JSON.stringify({ status: 'stop' }));
+        machineStatus = 0;
+        mqttClient.publish(publishTopic, JSON.stringify({ status: 0, decision: 0 }));
         return res.status(200).send({ message: "successfully sent stop status" });
     } catch (err) {
         next('failed to update sorting data in db: ' + err);
@@ -191,6 +197,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
                         recognizedId: cardId.trim(), box: boxValue, price, stock, wanted
                     }
                 });
+                mqttClient.publish(publishTopic, JSON.stringify({ status: machineStatus, decision: boxValue + 1 }));
                 res.status(200).send({ boxNumber: boxValue });
             }
         });
@@ -230,6 +237,7 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
         }
     });
     io.emit('error', JSON.stringify({ message: errorMessageForUser }));
+    mqttClient.publish(publishTopic, JSON.stringify({ status: machineStatus, decision: 5 }));
     res.status(500).send({ boxNumber: 4 });
 }
 
