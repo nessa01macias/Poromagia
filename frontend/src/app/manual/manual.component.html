@@ -1,4 +1,33 @@
 <main>
   <app-navigation [activeIndex]="3"></app-navigation>
-  <p>manual works!</p>
+
+  <h2>User manual</h2>
+  <div class="pageDropdown">
+    <div>Machine control</div>
+    <mat-icon (click)="toggleDropdownStatus(0)" *ngIf="!dropdownOpenValues[0]">keyboard_arrow_down</mat-icon>
+    <mat-icon (click)="toggleDropdownStatus(0)" *ngIf="dropdownOpenValues[0]">keyboard_arrow_up</mat-icon>
+  </div>
+  <div class="pageManual" *ngIf="dropdownOpenValues[0]">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  </div>
+  <div class="pageDropdown">
+    <div>Status page</div>
+    <mat-icon (click)="toggleDropdownStatus(1)" *ngIf="!dropdownOpenValues[1]">keyboard_arrow_down</mat-icon>
+    <mat-icon (click)="toggleDropdownStatus(1)" *ngIf="dropdownOpenValues[1]">keyboard_arrow_up</mat-icon>
+  </div>
+  <div class="pageManual" *ngIf="dropdownOpenValues[1]">
+    Lorem ipsum dolor sit amet, nibh accumsan sed eu, ad impedit oportere vel, in putant constituam vis. Sed quem nemore ea. Primis facilisis vel ne, mea eligendi facilisi in, vis ei illum definiebas. Ius et homero bonorum dissentiet.
+    Vel adhuc lobortis an, no inimicus vituperata sea. Corrumpit temporibus sed eu, cum no doctus dissentias. Justo torquatos at mea, ignota gloriatur no sea, ne appareat convenire quaerendum nec. Vel ei decore pericula.
+    Ex sit euismod veritus offendit. At cum gloriatur reprimique. Id nam suscipit forensibus, pri an magna euripidis. At his constituto adipiscing disputando. Clita expetendis nec at. Eam ne dicit iisque tractatos.
+    Ius cu nulla omnium consetetur. Dicit discere nominavi ne eum. Eam diceret labores expetendis at. Sint option perfecto per ad. In nostrum deterruisset eum, quo veri nusquam recteque an, odio doming euismod mel ei.
+    Mel eu dicam delenit iracundia, integre placerat cum eu, no qui graece detraxit. Eum ne vocibus gubergren, eu dictas aliquando per. Vim cu corpora iracundia contentiones, ius adhuc clita doctus at, te vocent labitur nec. Vim an scripta posidonium, idque oportere eu vis. Duo ei qualisque adipiscing, an clita qualisque has.
+  </div>
+  <div class="pageDropdown">
+    <div>Statistics</div>
+    <mat-icon (click)="toggleDropdownStatus(2)" *ngIf="!dropdownOpenValues[2]">keyboard_arrow_down</mat-icon>
+    <mat-icon (click)="toggleDropdownStatus(2)" *ngIf="dropdownOpenValues[2]">keyboard_arrow_up</mat-icon>
+  </div>
+  <div class="pageManual" *ngIf="dropdownOpenValues[2]">
+    Lorem ipsum
+  </div>
 </main>
