@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MachineInitComponent } from './machine-init.component';
+import {HttpClientModule} from "@angular/common/http";
 
 describe('MachineInitComponent', () => {
   let component: MachineInitComponent;
@@ -8,6 +9,7 @@ describe('MachineInitComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [HttpClientModule],
       declarations: [ MachineInitComponent ]
     })
     .compileComponents();
