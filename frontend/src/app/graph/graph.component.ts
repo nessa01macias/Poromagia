@@ -40,7 +40,7 @@ export class GraphComponent implements OnInit {
   ngOnInit(): void {
     // fill tension array with default values if it contains less values than datasets
     if (this.tension.length < this.yAxisValues.length) {
-      for (let i: number = this.tension.length; i <= this.datasetLabels.length; i++) {
+      for (let i: number = this.tension.length; i < this.datasetLabels.length; i++) {
         this.tension.push(this.defaultTension);
       }
     }
@@ -52,10 +52,17 @@ export class GraphComponent implements OnInit {
     if (this.yAxisValues.length > this.maxGraphNumber) {
       this.messageService.add("Too many graphs selected - Only the first " + this.maxGraphNumber + " graphs are displayed",
         'WARNING', 4000);
-      this.yAxisValues = this.yAxisValues.slice(0, 5);
+      this.yAxisValues = this.yAxisValues.slice(0, this.maxGraphNumber);
     }
 
     this.getChart();
+  }
+
+  /**
+   * getter for messageService; used for testing
+   */
+  getMessageService(): MessageService {
+    return this.messageService;
   }
 
   /**
