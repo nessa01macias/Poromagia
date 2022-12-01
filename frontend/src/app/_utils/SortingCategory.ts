@@ -1,3 +1,7 @@
+/**
+ * utils class describing the different sorting categories
+ * this class contains three static objects for the sorting categories "price", "stock" and "wanted"
+ */
 export class SortingCategory {
   static readonly PRICE = new SortingCategory('Price', true, true, '€');
   static readonly STOCK = new SortingCategory('Stock', false, true, 'pieces');
