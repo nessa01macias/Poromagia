@@ -3,6 +3,10 @@ import {SortingCategory} from "../_utils/SortingCategory";
 import {MessageService} from "../_services/message.service";
 import {WebsocketService} from "../_services/websocket.service";
 
+
+/**
+ * component to display the currently pricessed card
+ */
 @Component({
   selector: 'app-status',
   templateUrl: './status.component.html',
@@ -27,6 +31,11 @@ export class StatusComponent implements OnInit {
   private readonly wantedKey = 'wanted';
   private readonly boxKey = 'box';
 
+  /**
+   * reads the status values from the local storage and sets the values accordingly
+   * @param messageService service to display messages
+   * @param websocketService service to handle the websocket connection and listeners
+   */
   constructor(private messageService: MessageService, private websocketService: WebsocketService) {
     const storedStatus = localStorage.getItem(this.recognizeCardStatus);
     if (storedStatus) {
@@ -41,16 +50,26 @@ export class StatusComponent implements OnInit {
     }
   }
 
+  /**
+   * adds two listeners listening on the taken image and the data of the recognized cards
+   */
   ngOnInit(): void {
     this.websocketService.addListener('recognized card', this.cardRecognizedListener);
     this.websocketService.addListener('image', this.imageReceivedListener);
   }
 
+  /**
+   * removes the websocket listeners when the component is destroyed
+   */
   ngOnDestroy(): void {
     this.websocketService.removeListener('recognized card', this.cardRecognizedListener);
     this.websocketService.removeListener('image', this.imageReceivedListener);
   }
 
+  /**
+   * listener to get the values of the recognized card, display them and store them in the local storage
+   * @param data the data send via websocket containing the values of the recognized card
+   */
   private cardRecognizedListener = (data: string): void => {
     const parsedData = JSON.parse(data);
     this.price = parsedData.price + ' ' + SortingCategory.PRICE.unit;
@@ -71,6 +90,10 @@ export class StatusComponent implements OnInit {
     localStorage.setItem(this.recognizeCardStatus, JSON.stringify(storedStatusParsed));
   }
 
+  /**
+   * listener to get the image taken before recognizing the card, display it and store it in the local storage
+   * @param data the data send via websocket containing the taken picture
+   */
   private imageReceivedListener = (data: string): void => {
     this.takenImageSrc = JSON.parse(data).imgSrc;
     this.waitingForResult = true;

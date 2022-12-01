@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import {io, Socket} from "socket.io-client";
 import {environment} from "../../environments/environment";
 
+
+/**
+ * service for handling the websocket connection to the backend
+ */
 @Injectable({
   providedIn: 'root'
 })

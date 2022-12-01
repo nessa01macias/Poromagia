@@ -6,6 +6,7 @@ import {MessageService} from "../_services/message.service";
 export type chartType = 'line' | 'doughnut' | 'table' | 'bar';
 
 /**
+ * component to display charts
  * xAxisValues, yAxisValues and datasetLabels are required attributes
  */
 @Component({
@@ -33,6 +34,9 @@ export class GraphComponent implements OnInit {
     Chart.register(...registerables);
   }
 
+  /**
+   * checks the input data, formats it and displays the corresponding graph
+   */
   ngOnInit(): void {
     // fill tension array with default values if it contains less values than datasets
     if (this.tension.length < this.yAxisValues.length) {
@@ -54,6 +58,10 @@ export class GraphComponent implements OnInit {
     this.getChart();
   }
 
+  /**
+   * parses the input data and creates a chart according to it (chart can be of different types and it can contain multiple datasets)
+   * @return a chart according to the given input values
+   */
   private getChart(): void {
     const datasetValues: any = [];
     this.yAxisValues.forEach((yDataset: number[], index: number) => datasetValues.push({

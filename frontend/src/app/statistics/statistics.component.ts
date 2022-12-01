@@ -12,6 +12,10 @@ type DiagramType = {
   combinableWith: number[]
 }
 
+
+/**
+ * component to display different statistics data according to the user input as graphs or tables
+ */
 @Component({
   selector: 'app-statistics',
   templateUrl: './statistics.component.html',
@@ -47,6 +51,10 @@ export class StatisticsComponent {
   constructor(private httpService: HttpService, private messageService: MessageService) {
   }
 
+  /**
+   * open or closes the dropdown to select the time period and graph type
+   * if the dropdown is closed and all input values are valid, the http service is called to get the data for the chart
+   */
   toggleSelectDropdown(): void {
     if (this.dropdownOpen &&
       (!this.fromDate || !this.toDate || !this.getDatesValidity() || !this.typeIsSelected())) {
@@ -55,6 +63,7 @@ export class StatisticsComponent {
       this.dropdownOpen = false;
     } else if (this.dropdownOpen && this.fromDate && this.toDate) {
       const selectedTypes = this.diagramTypes.filter(type => type.selected);
+      // sets the x values to the dates in the selected time period if the requested chart is a line chart
       this.xAxisValues = selectedTypes[0].chartType === 'line' ? this.getDates(this.fromDate, this.toDate) : [];
       this.yAxisValues = [];
       this.datasetLabels = [];
@@ -62,6 +71,7 @@ export class StatisticsComponent {
       const datasetValues: number[][] = [];
       let dataReadCount: number = 0;
 
+      // call the http service for each selected type to get the data for the chart
       selectedTypes.forEach(selectedType => {
         if (selectedType && selectedType.endpointMethod && this.fromDate && this.toDate) {
           this.httpService.callStatisticsEndpoint(selectedType.endpointMethod, this.fromDate, this.toDate)
@@ -72,11 +82,14 @@ export class StatisticsComponent {
               }
               const responseProperties = res && res.data && res.data.length > 0 ?
                 Object.getOwnPropertyNames(res.data[0]) : [];
+
+              // adds ine dataset for each property in the http response
               for (let i = 1; i < responseProperties.length; i++) {
                 datasetValues.push([]);
                 this.datasetLabels.push(res.labels && res.labels[i-1] ? res.labels[i-1] : responseProperties[i]);
                 this.tension.push(0);
                 if (selectedType.chartType === 'doughnut') {
+                  // sets the x-axis values for the doughnut chart to the sent labels or to the properties in the http response data, if no labels are sent
                   this.xAxisValues.push(res.labels && res.labels[i-1] ? res.labels[i-1] : responseProperties[i]);
                   datasetValues[0].push(res.data[0][responseProperties[i]]);
                 }
@@ -84,16 +97,19 @@ export class StatisticsComponent {
 
               if (selectedType.chartType === 'bar') {
                 for (let resDataset of res.data) {
+                  // sets the x-axis values to the _id values in the http response data if the chart is a bar chart
                   this.xAxisValues.push(resDataset._id);
                 }
               }
 
               if (selectedType.chartType === 'line' || selectedType.chartType === 'bar') {
+                // goes through all dates in the given range and checks for each date if the http response contains data for this data
+                // adds the data for each property in the response data to the dataset if date is found in http response; adds 0 otherwise
                 for (let date of this.xAxisValues) {
-                  const numberOfCards = res.data.find((data: any) => data._id === date);
+                  const dataOnGivenDay = res.data.find((data: any) => data._id === date);
                   for (let i = 1; i < responseProperties.length; i++) {
                     const index = datasetValues.length - responseProperties.length + i;
-                    datasetValues[index].push(numberOfCards ? numberOfCards[responseProperties[i]] : 0);
+                    datasetValues[index].push(dataOnGivenDay ? dataOnGivenDay[responseProperties[i]] : 0);
                   }
                 }
               } else if (selectedType.chartType === 'table') {
@@ -119,11 +135,17 @@ export class StatisticsComponent {
         }
       });
     } else {
+      // closes the dropdown if it is currently open
       this.dropdownOpen = !this.dropdownOpen;
       this.displayPreviousGraph = false;
     }
   }
 
+  /**
+   * sets the data for the table according to the values returned in the http response
+   * @param httpResponse the response of the http request to get the statistics data
+   * @param responseProperties the properties in the http response data
+   */
   setTableData(httpResponse: any, responseProperties: any): void {
     this.tableValues = [];
     for (let dataset of httpResponse) {
@@ -131,12 +153,14 @@ export class StatisticsComponent {
       for (let i = 1; i < responseProperties.length; i++) {
         let dateString = dataset[responseProperties[i]];
         if (dateString !== undefined && dateString !== null && responseProperties[i] === 'Time') {
+          // format time to the format hh:mm:ss
           const hours = Math.floor(dateString / (60 * 60));
           const minutes = Math.floor((dateString - hours * 60 * 60) / 60);
           const seconds = dateString - hours * 60 * 60 - minutes * 60;
           tableDataset.push(hours.toString().padStart(2, '0') + ':'
             + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'));
         } else {
+          // formats timestamps to only get date and hours, minutes and seconds
           tableDataset.push(dateString && typeof dateString === 'string' ?
             dateString.substring(0, 10) + ' ' + dateString.substring(11, 19) : dateString);
         }
@@ -145,9 +169,14 @@ export class StatisticsComponent {
     }
   }
 
+  /**
+   * changes the selected values of the diagram types according to the selected type
+   * @param typeId the id of the diagram type the user selected
+   */
   selectDiagramType(typeId: number) {
     const clickedType = this.diagramTypes.find(type => type.id === typeId);
     if (clickedType) {
+      // check for each diagram type, if it is selected and combinable with the new selected type to determine the selected value
       this.diagramTypes.forEach(type => {
         type.selected = !type.selected && type.id === typeId
           || type.selected && clickedType.combinableWith.includes(type.id);
@@ -155,14 +184,25 @@ export class StatisticsComponent {
     }
   }
 
+  /**
+   * checks if at least one diagram type is selected
+   */
   typeIsSelected(): boolean {
     return this.diagramTypes.findIndex(type => type.selected) >= 0;
   }
 
+  /**
+   * checks if start date is smaller than end date if both values are set
+   */
   getDatesValidity(): boolean {
     return !this.fromDate || !this.toDate || this.fromDate < this.toDate;
   }
 
+  /**
+   * gets all date for each day between the given start and end date (both inclusive)
+   * @param start the start date of the requested time period
+   * @param end the end date of the requested time period
+   */
   getDates(start: Date, end: Date): string[] {
     let dates = [];
     for (let dt = new Date(start); dt <= new Date(end); dt.setDate(dt.getDate() + 1)) {

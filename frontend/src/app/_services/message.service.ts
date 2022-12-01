@@ -6,6 +6,10 @@ export type Message = {
   type: MessageType
 }
 
+
+/**
+ * service for handling messages displayed for a limited time period
+ */
 @Injectable({
   providedIn: 'root'
 })

@@ -9,6 +9,10 @@ const httpOptions = {
 export type functionName = 'ALL_CARDS' | 'RECOGNIZED_CARDS' | 'NOT_RECOGNIZED_CARDS' | 'CARDS_IN_BOX'
   | 'CARDS_IN_BOXES' | 'CATEGORIES_COUNT' | 'SORTING_DATA_CATEGORIES' | 'RECOGNIZE_TIMES';
 
+
+/**
+ * service for handling http communication between the frontend and the backend
+ */
 @Injectable({
   providedIn: 'root'
 })
