@@ -26,8 +26,8 @@ export class MachineInitComponent implements OnInit {
   editingUpperBoundary: boolean = false;
   readonly keyboardValues: string[][] = [['1', '2', '3', '4', '5', '6', '7'], ['8', '9', '0', '.', 'Delete', 'Ok']];
 
-  private lowerBoundaryCursorPosition?: number;
-  private upperBoundaryCursorPosition?: number;
+  private lowerBoundaryCursorPosition: number = 0;
+  private upperBoundaryCursorPosition: number = 0;
   readonly maxInputLength: number = 13;
 
   /* keys and values for local storage */
@@ -69,6 +69,20 @@ export class MachineInitComponent implements OnInit {
     document.addEventListener('click', (event: MouseEvent) => {
       this.hideKeyboard(event);
     });
+  }
+
+  /**
+   * getter for messageService; used for testing
+   */
+  getMessageService(): MessageService {
+    return this.messageService;
+  }
+
+  /**
+   * getter for httpService; used for testing
+   */
+  getHttpService(): HttpService {
+    return this.httpService;
   }
 
   /**
@@ -236,19 +250,6 @@ export class MachineInitComponent implements OnInit {
   }
 
   /**
-   * hides the keyboard if the target of the click event doesn't have the class 'keyboardDisplay'
-   * @param event click event containing the click target
-   */
-  hideKeyboard(event: Event): void {
-    // @ts-ignore
-    if (!event.target || !event.target.classList || !event.target.classList.toString().includes('keyboardDisplay')) {
-      this.keyboardDisplayed = false;
-      this.editingLowerBoundary = false;
-      this.editingUpperBoundary = false;
-    }
-  }
-
-  /**
    * get the css classes of the given input field depending on if the field is being edited and on the validity of the input data
    * @param lowerBoundary true if the input classes for the lower boundary input field are requested; false if the classes for the upper boundary field are requested
    */
@@ -261,6 +262,19 @@ export class MachineInitComponent implements OnInit {
       classes += ' invalid';
     }
     return classes;
+  }
+
+  /**
+   * hides the keyboard if the target of the click event doesn't have the class 'keyboardDisplay'
+   * @param event click event containing the click target
+   */
+  private hideKeyboard(event: Event): void {
+    // @ts-ignore
+    if (!event.target || !event.target.classList || !event.target.classList.toString().includes('keyboardDisplay')) {
+      this.keyboardDisplayed = false;
+      this.editingLowerBoundary = false;
+      this.editingUpperBoundary = false;
+    }
   }
 
 }
