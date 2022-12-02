@@ -12,20 +12,20 @@ const app = express();
 const http = require('http').createServer(app);
 
 
-/* Serve front end */
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../../frontend/dist/')));
-    app.get('*', (req, res) =>
-        res.sendFile(
-            path.resolve(__dirname, '../../', 'frontend', 'dist', 'index.html')
-        )
-    );
-}
+// /* Serve front end */
+// if (process.env.NODE_ENV === 'production') {
+//     app.use(express.static(path.join(__dirname, '../../frontend/dist/')));
+//     app.get('*', (req, res) =>
+//         res.sendFile(
+//             path.resolve(__dirname, '../../', 'frontend', 'dist', 'index.html')
+//         )
+//     );
+// }
 
 /* websocket server */
 const io = require('socket.io')(http, {
     cors: {
-        origins: ['http://localhost:4200']
+        origins: [process.env.FROND_END_URI]
     }
 });
 
@@ -74,7 +74,7 @@ let machineStatus = 0;
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cors({ origin: ["http://localhost:4200"] }));
+app.use(cors({ origin: [process.env.FROND_END_URI] }));
 
 /**
  * checks and inserts the sorting value (start time, category, lower and upper boundary) in the database
