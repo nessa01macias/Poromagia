@@ -3,10 +3,11 @@
 /out-tsc
 /bazel-out
 .idea
+.env
 
 # Node
 /frontend/node_modules
-/back_end/source/node_modules/
+/node_modules/
 /frontend/package-lock.json
 /back_end/source/package-lock.json
 npm-debug.log
