@@ -5,7 +5,7 @@ import {WebsocketService} from "../_services/websocket.service";
 
 
 /**
- * component to display the currently pricessed card
+ * component to display the currently processed card
  */
 @Component({
   selector: 'app-status',
@@ -70,7 +70,7 @@ export class StatusComponent implements OnInit {
    * listener to get the values of the recognized card, display them and store them in the local storage
    * @param data the data send via websocket containing the values of the recognized card
    */
-  private cardRecognizedListener = (data: string): void => {
+  cardRecognizedListener = (data: string): void => {
     const parsedData = JSON.parse(data);
     this.price = parsedData.price + ' ' + SortingCategory.PRICE.unit;
     this.stock = parsedData.stock + ' ' + SortingCategory.STOCK.unit;
@@ -94,7 +94,7 @@ export class StatusComponent implements OnInit {
    * listener to get the image taken before recognizing the card, display it and store it in the local storage
    * @param data the data send via websocket containing the taken picture
    */
-  private imageReceivedListener = (data: string): void => {
+  imageReceivedListener = (data: string): void => {
     this.takenImageSrc = JSON.parse(data).imgSrc;
     this.waitingForResult = true;
     localStorage.setItem(this.recognizeCardStatus, JSON.stringify({[this.takenImageKey]: this.takenImageSrc}));
