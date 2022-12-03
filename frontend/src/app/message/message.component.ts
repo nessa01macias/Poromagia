@@ -12,16 +12,23 @@ import {MessageService} from "../_services/message.service";
 })
 export class MessageComponent {
 
-  messages = this.messagesService.getMessages().keys();
+  messages = this.messageService.getMessages().keys();
 
-  constructor(public messagesService: MessageService) {}
+  constructor(public messageService: MessageService) {}
+
+  /**
+   * getter for messageService; used for testing
+   */
+  getMessageService(): MessageService {
+    return this.messageService;
+  }
 
   /**
    * calls the messages service to remove the message with the given key from the messages list and stop displaying it
    * @param messageKey the key of the message to remove
    */
   closeMessage(messageKey: number): void {
-    this.messagesService.remove(messageKey);
+    this.messageService.remove(messageKey);
   }
 
 }

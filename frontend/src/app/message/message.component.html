@@ -1,9 +1,9 @@
-<div *ngIf="messagesService.getMessages().size > 0" class="messagesContainer">
-  <div *ngFor='let messageKey of messagesService.getMessages().keys()'
-       class="{{'message ' + messagesService.getMessages().get(messageKey)!.type}}">
+<div *ngIf="messageService.getMessages().size > 0" class="messagesContainer">
+  <div *ngFor='let messageKey of messageService.getMessages().keys()'
+       class="{{'message ' + messageService.getMessages().get(messageKey)!.type}}">
     <div class="closeButton" (click)="closeMessage(messageKey)">
       <mat-icon>close</mat-icon>
     </div>
-    {{messagesService.getMessages().get(messageKey)!.text}}
+    {{messageService.getMessages().get(messageKey)!.text}}
   </div>
 </div>
