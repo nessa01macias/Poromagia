@@ -5,6 +5,7 @@
   --grey-mid: rgb(199, 199, 199);
   --grey-light: #f2f2f2;
   --grey-background: rgba(174, 174, 174, 0.26);
+  --blue-button: lightblue;
   --blue-light: #93bbc9;
   --blue-mid: #6b9eb0;
   --blue-background: rgba(147, 187, 201, 0.4);
@@ -34,10 +35,10 @@ button {
   font-family: inherit;
   border-radius: 7px;
   border-style: solid;
-  background-color: lightblue;
+  background-color: var(--blue-button);
 }
 
 button:hover {
-  background-color: #93bbc9;
+  background-color: var(--blue-light);
   cursor: pointer;
 }
