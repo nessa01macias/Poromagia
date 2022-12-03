@@ -137,9 +137,9 @@ describe('MachineInitComponent', () => {
   it('should send an http start request and start the machine when starting the machine', () => {
     component.lowerBoundary = '0';
     component.upperBoundary = '5.5';
-    const mySpy = spyOn(component.getHttpService(), 'startSorting');
+    const httpServiceSpy = spyOn(component.getHttpService(), 'startSorting');
     component.startSorting();
-    expect(mySpy).toHaveBeenCalledOnceWith('Price', 0, 5.5);
+    expect(httpServiceSpy).toHaveBeenCalledOnceWith('Price', 0, 5.5);
     expect(component.machineStopped).toBeFalse();
   });
 
@@ -147,9 +147,9 @@ describe('MachineInitComponent', () => {
     // set boundary values to invalid values
     component.lowerBoundary = '0xyz.9?++.4';
     component.upperBoundary = '-10.3.4';
-    const mySpy = spyOn(component.getHttpService(), 'startSorting');
+    const httpServiceSpy = spyOn(component.getHttpService(), 'startSorting');
     component.startSorting();
-    expect(mySpy).toHaveBeenCalledOnceWith('Price', 0, 0);
+    expect(httpServiceSpy).toHaveBeenCalledOnceWith('Price', 0, 0);
   });
 
   it('should save the machine status in the local storage when stopping the machine', () => {
@@ -166,9 +166,9 @@ describe('MachineInitComponent', () => {
   });
 
   it('should send an http stop request and stop the machine when stopping the machine', () => {
-    const mySpy = spyOn(component.getHttpService(), 'pauseSorting');
+    const httpServiceSpy = spyOn(component.getHttpService(), 'pauseSorting');
     component.pauseSorting();
-    expect(mySpy).toHaveBeenCalledTimes(1);
+    expect(httpServiceSpy).toHaveBeenCalledTimes(1);
     expect(component.machineStopped).toBeTrue();
   });
 

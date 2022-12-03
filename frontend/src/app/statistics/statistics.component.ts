@@ -52,6 +52,20 @@ export class StatisticsComponent {
   }
 
   /**
+   * getter for httpService; used for testing
+   */
+  getHttpService(): HttpService {
+    return this.httpService;
+  }
+
+  /**
+   * getter for messageService; used for testing
+   */
+  getMessageService(): MessageService {
+    return this.messageService;
+  }
+
+  /**
    * open or closes the dropdown to select the time period and graph type
    * if the dropdown is closed and all input values are valid, the http service is called to get the data for the chart
    */
@@ -59,7 +73,7 @@ export class StatisticsComponent {
     if (this.dropdownOpen &&
       (!this.fromDate || !this.toDate || !this.getDatesValidity() || !this.typeIsSelected())) {
       // only close dropdown and not reload diagram, if not all values are set correctly
-      this.displayPreviousGraph = this.yAxisValues && this.yAxisValues.length > 0;
+      this.displayPreviousGraph = !!this.yAxisValues && this.yAxisValues.length > 0;
       this.dropdownOpen = false;
     } else if (this.dropdownOpen && this.fromDate && this.toDate) {
       const selectedTypes = this.diagramTypes.filter(type => type.selected);
@@ -83,7 +97,7 @@ export class StatisticsComponent {
               const responseProperties = res && res.data && res.data.length > 0 ?
                 Object.getOwnPropertyNames(res.data[0]) : [];
 
-              // adds ine dataset for each property in the http response
+              // adds one dataset for each property in the http response
               for (let i = 1; i < responseProperties.length; i++) {
                 datasetValues.push([]);
                 this.datasetLabels.push(res.labels && res.labels[i-1] ? res.labels[i-1] : responseProperties[i]);
@@ -142,34 +156,6 @@ export class StatisticsComponent {
   }
 
   /**
-   * sets the data for the table according to the values returned in the http response
-   * @param httpResponse the response of the http request to get the statistics data
-   * @param responseProperties the properties in the http response data
-   */
-  setTableData(httpResponse: any, responseProperties: any): void {
-    this.tableValues = [];
-    for (let dataset of httpResponse) {
-      let tableDataset: string[] = [];
-      for (let i = 1; i < responseProperties.length; i++) {
-        let dateString = dataset[responseProperties[i]];
-        if (dateString !== undefined && dateString !== null && responseProperties[i] === 'Time') {
-          // format time to the format hh:mm:ss
-          const hours = Math.floor(dateString / (60 * 60));
-          const minutes = Math.floor((dateString - hours * 60 * 60) / 60);
-          const seconds = dateString - hours * 60 * 60 - minutes * 60;
-          tableDataset.push(hours.toString().padStart(2, '0') + ':'
-            + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'));
-        } else {
-          // formats timestamps to only get date and hours, minutes and seconds
-          tableDataset.push(dateString && typeof dateString === 'string' ?
-            dateString.substring(0, 10) + ' ' + dateString.substring(11, 19) : dateString);
-        }
-      }
-      this.tableValues.push(tableDataset);
-    }
-  }
-
-  /**
    * changes the selected values of the diagram types according to the selected type
    * @param typeId the id of the diagram type the user selected
    */
@@ -203,7 +189,7 @@ export class StatisticsComponent {
    * @param start the start date of the requested time period
    * @param end the end date of the requested time period
    */
-  getDates(start: Date, end: Date): string[] {
+  private getDates(start: Date, end: Date): string[] {
     let dates = [];
     for (let dt = new Date(start); dt <= new Date(end); dt.setDate(dt.getDate() + 1)) {
       const month = dt.getMonth() + 1;
@@ -212,5 +198,33 @@ export class StatisticsComponent {
     }
     return dates;
   };
+
+  /**
+   * sets the data for the table according to the values returned in the http response
+   * @param httpResponse the response of the http request to get the statistics data
+   * @param responseProperties the properties in the http response data
+   */
+  private setTableData(httpResponse: any, responseProperties: any): void {
+    this.tableValues = [];
+    for (let dataset of httpResponse) {
+      let tableDataset: string[] = [];
+      for (let i = 1; i < responseProperties.length; i++) {
+        let dateString = dataset[responseProperties[i]];
+        if (dateString !== undefined && dateString !== null && responseProperties[i] === 'Time') {
+          // format time to the format hh:mm:ss
+          const hours = Math.floor(dateString / (60 * 60));
+          const minutes = Math.floor((dateString - hours * 60 * 60) / 60);
+          const seconds = dateString - hours * 60 * 60 - minutes * 60;
+          tableDataset.push(hours.toString().padStart(2, '0') + ':'
+            + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'));
+        } else {
+          // formats timestamps to only get date and hours, minutes and seconds
+          tableDataset.push(dateString && typeof dateString === 'string' ?
+            dateString.substring(0, 10) + ' ' + dateString.substring(11, 19) : dateString);
+        }
+      }
+      this.tableValues.push(tableDataset);
+    }
+  }
 
 }
