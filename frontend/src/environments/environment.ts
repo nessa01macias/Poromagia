@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  SOCKET_ENDPOINT: 'https://poromagia.herokuapp.com'
+  SOCKET_ENDPOINT: 'http://localhost:3000'//https://poromagia.herokuapp.com'
 };
 
 /*
