@@ -7,6 +7,7 @@ const cors = require('cors');
 const ISODate = require('isodate');
 const dotenv = require('dotenv').config();
 const path = require('path');
+const multer = require('multer')
 
 const app = express();
 const http = require('http').createServer(app);
@@ -42,8 +43,9 @@ MongoClient.connect(process.env.MONGO_URI, {
     db = connection.db(dbName);
     sortingValuesCollection = db.collection('sortingData');
     resultCollection = db.collection('resultData');
+    picturesCollection = db.collection('picturesData');
     console.log('connected to database ' + dbName);
-});
+}).catch((err) => console.log("Error in database setup", err))
 
 
 
