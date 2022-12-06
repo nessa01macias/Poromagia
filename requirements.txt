@@ -1,6 +1,6 @@
 easyocr==1.6.2
 opencv-python-headless==4.5.4.60
 pillow==9.2.0
-numpy==1.19.5
+numpy==1.23.5
 requests==2.18.4
 langid==1.1.5
