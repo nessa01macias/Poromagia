@@ -134,7 +134,7 @@ describe('MachineInitComponent', () => {
     expect(component.getMessageService().getMessages().size).toBe(1);
   });
 
-  it('should send an http start request and start the machine when starting the machine', () => {
+  it('should send an http start request and start the machine when starting sorting', () => {
     component.lowerBoundary = '0';
     component.upperBoundary = '5.5';
     const httpServiceSpy = spyOn(component.getHttpService(), 'startSorting');

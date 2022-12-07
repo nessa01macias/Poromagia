@@ -96,7 +96,7 @@ describe('StatisticsComponent', () => {
     }
   }
 
-  it('should select the diagram type and deselect all other diagram types it is not combinable with', () => {
+  it('should select the diagram type and deselect all other diagram types with which it cannot be combined', () => {
     // selecting multiple combinable diagram types should select multiple types
     checkSelectedValues([false, false, false, false, false, false, false]);
     component.selectDiagramType(2);

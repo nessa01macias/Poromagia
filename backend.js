@@ -245,7 +245,7 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
 
 /**
  * calls the computer vision model (as python child process) to recognize the current card by the taken image
- * saves the result in the database and sends it via websockets and http response
+ * saves the result in the database and sends it via websockets and MQTT
  * @param req http request containing the taken image in the request body
  */
 app.post('/recognize', async (req, res, next) => {
@@ -268,7 +268,7 @@ app.post('/recognize', async (req, res, next) => {
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
 
     // only for testing TODO: remove
-    io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/f/2/f295b713-1d6a-43fd-910d-fb35414bf58a.jpg" }));
+    io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/6/d/6da7cd39-1f8a-4f68-adb7-df2beac02263.jpg?1572490600" }));
 
     // listener to process the data returned by the computer vision model
     childPython.stdout.on('data', async (data) => {

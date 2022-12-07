@@ -66,7 +66,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getNumberOfAllCards(fromDate: Date, toDate: Date): Observable<any> {
+  private getNumberOfAllCards(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/cardsCount/all?fromDate=" + fromDate + "&toDate=" + toDate);
   }
 
@@ -75,7 +75,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getNumberOfRecognizedCards(fromDate: Date, toDate: Date): Observable<any> {
+  private getNumberOfRecognizedCards(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/cardsCount/recognized?fromDate="
       + fromDate + "&toDate=" + toDate);
   }
@@ -85,7 +85,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getNumberOfNotRecognizedCards(fromDate: Date, toDate: Date): Observable<any> {
+  private getNumberOfNotRecognizedCards(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/cardsCount/notRecognized?fromDate="
       + fromDate + "&toDate=" + toDate);
   }
@@ -96,7 +96,7 @@ export class HttpService {
    * @param toDate the end date of the requested time period
    * @param boxId
    */
-  getNumberOfCardsInBox(fromDate: Date, toDate: Date, boxId: number): Observable<any> {
+  private getNumberOfCardsInBox(fromDate: Date, toDate: Date, boxId: number): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/cardsCount/boxes/" + boxId
       + "?fromDate=" + fromDate + "&toDate=" + toDate);
   }
@@ -106,7 +106,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getNumberOfCardsInBoxes(fromDate: Date, toDate: Date): Observable<any> {
+  private getNumberOfCardsInBoxes(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/cardsCount/boxes"
       + "?fromDate=" + fromDate + "&toDate=" + toDate);
   }
@@ -116,7 +116,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getRecognizeTimes(fromDate: Date, toDate: Date): Observable<any> {
+  private getRecognizeTimes(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/recognizeTimes"
       + "?fromDate=" + fromDate + "&toDate=" + toDate);
   }
@@ -126,7 +126,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getCategoriesCount(fromDate: Date, toDate: Date): Observable<any> {
+  private getCategoriesCount(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/cardsCount/categories?fromDate="
       + fromDate + "&toDate=" + toDate);
   }
@@ -136,7 +136,7 @@ export class HttpService {
    * @param fromDate the start date of the requested time period
    * @param toDate the end date of the requested time period
    */
-  getSortingDataCategories(fromDate: Date, toDate: Date): Observable<any> {
+  private getSortingDataCategories(fromDate: Date, toDate: Date): Observable<any> {
     return this.http.get(environment.SOCKET_ENDPOINT + "/sortingData/categories?fromDate="
       + fromDate + "&toDate=" + toDate);
   }
