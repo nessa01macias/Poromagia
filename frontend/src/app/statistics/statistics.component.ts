@@ -181,7 +181,7 @@ export class StatisticsComponent {
    * checks if start date is smaller than end date if both values are set
    */
   getDatesValidity(): boolean {
-    return !this.fromDate || !this.toDate || this.fromDate < this.toDate;
+    return !this.fromDate || !this.toDate || this.fromDate <= this.toDate;
   }
 
   /**
