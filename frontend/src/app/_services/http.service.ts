@@ -27,18 +27,16 @@ export class HttpService {
    * @param lowerBoundary a value determining the boundary value between the first and second box
    * @param upperBoundary a value determining the boundary value between the second and third box
    */
-  startSorting(selectedCategory: string, lowerBoundary: number | boolean, upperBoundary: number | boolean): void {
-    this.http.post(environment.SOCKET_ENDPOINT + "/start",
-      JSON.stringify({category: selectedCategory, lowerBoundary, upperBoundary}), httpOptions)
-      .subscribe(res => console.debug("start sorting response: " + JSON.stringify(res)));
+  startSorting(selectedCategory: string, lowerBoundary: number | boolean, upperBoundary: number | boolean): Observable<any> {
+    return this.http.post(environment.SOCKET_ENDPOINT + "/start",
+      JSON.stringify({category: selectedCategory, lowerBoundary, upperBoundary}), httpOptions);
   }
 
   /**
    * sends stop request to the server to stop the machine
    */
-  pauseSorting(): void {
-    this.http.post(environment.SOCKET_ENDPOINT + "/stop", '', httpOptions)
-      .subscribe(res => console.debug("pause sorting response: " + JSON.stringify(res)));
+  pauseSorting(): Observable<any> {
+    return this.http.post(environment.SOCKET_ENDPOINT + "/stop", '', httpOptions);
   }
 
   /**

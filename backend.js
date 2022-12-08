@@ -79,7 +79,7 @@ app.use(express.json());
 app.use(cors({ origin: [process.env.FROND_END_URI] }));
 
 /**
- * checks and inserts the sorting value (start time, category, lower and upper boundary) in the database
+ * checks and inserts the sorting values (start time, category, lower and upper boundary) in the database
  * and publishes the start status via mqtt afterwards
  * @param req http request containing the category and the lower and upper boundary in the request body
  */
@@ -103,7 +103,7 @@ app.post('/start', (req, res, next) => {
         }
         machineStatus = 1;
         mqttClient.publish(publishTopic, JSON.stringify({ status: 1, decision: 0 }));
-        return res.status(200).send({ message: "successfully send start status" });
+        return res.status(200).send({ message: "start status successfully sent" });
     } catch (err) {
         next('failed to insert sorting values in db: ' + err);
     }
@@ -122,7 +122,7 @@ app.post('/stop', (req, res, next) => {
         });
         machineStatus = 0;
         mqttClient.publish(publishTopic, JSON.stringify({ status: 0, decision: 0 }));
-        return res.status(200).send({ message: "successfully sent stop status" });
+        return res.status(200).send({ message: "stop status successfully sent" });
     } catch (err) {
         next('failed to update sorting data in db: ' + err);
     }
