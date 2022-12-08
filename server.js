@@ -90,7 +90,7 @@ app.use(express.json());
 app.use(cors({ origin: [process.env.FROND_END_URI] }));
 
 /**
- * checks and inserts the sorting value (start time, category, lower and upper boundary) in the database
+ * checks and inserts the sorting values (start time, category, lower and upper boundary) in the database
  * and publishes the start status via mqtt afterwards
  * @param req http request containing the category and the lower and upper boundary in the request body
  */
@@ -114,7 +114,7 @@ app.post('/start', (req, res, next) => {
         }
         machineStatus = 1;
         mqttClient.publish(publishTopic, JSON.stringify({ status: 1, decision: 0 }));
-        return res.status(200).send({ message: "successfully send start status" });
+        return res.status(200).send({ message: "start status successfully sent" });
     } catch (err) {
         next('failed to insert sorting values in db: ' + err);
     }
@@ -133,7 +133,7 @@ app.post('/stop', (req, res, next) => {
         });
         machineStatus = 0;
         mqttClient.publish(publishTopic, JSON.stringify({ status: 0, decision: 0 }));
-        return res.status(200).send({ message: "successfully sent stop status" });
+        return res.status(200).send({ message: "stop status successfully sent" });
     } catch (err) {
         next('failed to update sorting data in db: ' + err);
     }
@@ -256,7 +256,7 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
 
 /**
  * calls the computer vision model (as python child process) to recognize the current card by the taken image
- * saves the result in the database and sends it via websockets and http response
+ * saves the result in the database and sends it via websockets and MQTT
  * @param req http request containing the taken image in the request body
  */
 app.post('/', upload.single('image'), async (req, res, next) => {
@@ -280,7 +280,7 @@ app.post('/', upload.single('image'), async (req, res, next) => {
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
 
     // only for testing TODO: remove
-    io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/f/2/f295b713-1d6a-43fd-910d-fb35414bf58a.jpg" }));
+    io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/6/d/6da7cd39-1f8a-4f68-adb7-df2beac02263.jpg?1572490600" }));
 
     // listener to process the data returned by the computer vision model
     childPython.stdout.on('data', async (data) => {

@@ -29,12 +29,12 @@
       <div class="padding"></div>
       <div class="cardData">
         <h3>Card data:</h3>
-        <p>Price: {{price}}</p>
-        <p>Stock: {{stock}}</p>
-        <p>Wanted: {{wanted}}</p>
+        <p>Price: {{waitingForResult ? '' : price}}</p>
+        <p>Stock: {{waitingForResult ? '' : stock}}</p>
+        <p>Wanted: {{waitingForResult ? '' : wanted}}</p>
         <div class="boxResult">
           <mat-icon>arrow_forward</mat-icon>
-          <span> Box {{boxNumber !== undefined ? boxNumber : ''}}</span>
+          <span> Box {{boxNumber !== undefined && !waitingForResult ? boxNumber : ''}}</span>
         </div>
       </div>
     </div>

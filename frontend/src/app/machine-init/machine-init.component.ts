@@ -115,15 +115,20 @@ export class MachineInitComponent implements OnInit {
       this.lowerBoundary = (this.lowerBoundary.match(/^[0-9]*(?:\.[0-9]*)?/g) || []).join('');
       this.upperBoundary = (this.upperBoundary.match(/^[0-9]*(?:\.[0-9]*)?/g) || []).join('');
 
-      if (this.selectedCatIndex === 2) {
-        this.httpService.startSorting(selectedCategory.name, true, false);
-      } else {
-        this.httpService.startSorting(selectedCategory.name, +this.lowerBoundary, +this.upperBoundary);
-      }
-      this.machineStopped = false;
-      localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.runningStatusValue,
-        [this.categoryKey]: this.selectedCatIndex, [this.lowerKey]: this.lowerBoundary, [this.upperKey]: this.upperBoundary}));
-      this.messageService.add('Machine was started', 'SUCCESS', 3000);
+      this.httpService.startSorting(selectedCategory.name, this.selectedCatIndex === 2 ? true : +this.lowerBoundary,
+        this.selectedCatIndex === 2 ? false : +this.upperBoundary)
+        .subscribe({
+          next: res => {
+            console.debug("start sorting response: " + JSON.stringify(res));
+            this.machineStopped = false;
+            localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.runningStatusValue,
+              [this.categoryKey]: this.selectedCatIndex, [this.lowerKey]: this.lowerBoundary, [this.upperKey]: this.upperBoundary}));
+            this.messageService.add('Machine was started', 'SUCCESS', 3000);
+          }, error: err => {
+            console.error("start sorting error: " + err);
+            this.messageService.add('Failed to start machine - ' + err, 'ERROR', 5000);
+          }
+        });
     } else {
       this.messageService.add("Cannot start sorting - no sorting category selected", 'ERROR', 5000);
     }
@@ -133,10 +138,18 @@ export class MachineInitComponent implements OnInit {
    * calls the http service to send a stop request to the backend and saves the machine status in the local storage
    */
   pauseSorting(): void {
-    this.httpService.pauseSorting();
-    this.machineStopped = true;
-    localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.stopStatusValue}));
-    this.messageService.add('Machine was stopped', 'SUCCESS', 3000);
+    this.httpService.pauseSorting()
+      .subscribe({
+        next: res => {
+          console.debug("stop sorting response: " + JSON.stringify(res));
+          this.machineStopped = true;
+          localStorage.setItem(this.machineStatusKey, JSON.stringify({[this.statusKey]: this.stopStatusValue}));
+          this.messageService.add('Machine was stopped', 'SUCCESS', 3000);
+        }, error: err => {
+          console.error("stop sorting error: " + err);
+          this.messageService.add('Failed to stop machine - ' + err, 'ERROR', 5000);
+        }
+      });
   }
 
   /**
