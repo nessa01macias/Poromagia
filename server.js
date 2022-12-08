@@ -7,8 +7,19 @@ const cors = require('cors');
 const ISODate = require('isodate');
 const dotenv = require('dotenv').config();
 const path = require('path');
-const multer = require('multer')
 
+const multer = require('multer')
+const storage = multer.diskStorage({
+    destination: (res, file, cb) => {
+        cb(null, 'test_raspimg')
+    },
+    filename: (req, file, cb) => {
+        console.log(file);
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+})
+
+const upload = multer({ storage: storage });
 const app = express();
 const http = require('http').createServer(app);
 
@@ -248,7 +259,7 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
  * saves the result in the database and sends it via websockets and http response
  * @param req http request containing the taken image in the request body
  */
-app.post('/recognize', async (req, res, next) => {
+app.post('/', upload.single('image'), async (req, res, next) => {
     // save the start time in the database before processing the data
     const objectWithoutResultValues = { start: new Date() };
     let objectId;
@@ -262,8 +273,9 @@ app.post('/recognize', async (req, res, next) => {
         return next("Failed to insert initial result object into database: " + err);
     }
 
-    //TODO: get pic from body and send to frontend (change in comment)
-    let cardImage = req.query.filepath;
+    if (req.file) console.log("req.file:", req.file);
+    let cardImage = path.join(__dirname, './test_raspimg/' + req.file['filename']);
+
     // call the computer vision model to recognize the card
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
 
