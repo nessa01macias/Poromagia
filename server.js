@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         console.log(file);
-        cb(null, Date.now() + path.extname(file.originalname));
+        cb(null, file.originalname);
     }
 })
 
@@ -274,7 +274,7 @@ app.post('/', upload.single('image'), async (req, res, next) => {
     }
 
     if (req.file) console.log("req.file:", req.file);
-    let cardImage = path.join(__dirname, './test_raspimg/' + req.file['filename']);
+    let cardImage = path.join(__dirname, './test_raspimg/1.jpg');
 
     // call the computer vision model to recognize the card
     const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
