@@ -202,7 +202,7 @@ function sendBoxValue(poromagiaData, cardId, res, cardLink, objectId) {
             if (boxValue < 1 || boxValue > 3) {
                 error = "failed to get box value - no data from Poromagia's database for the current card found";
             } else {
-                // send result via websocket, update database entry and send http response with the box to sort the current card in
+                // send result via websocket, update database entry and publish the number of the box to sort the current card in via MQTT
                 io.emit('recognized card', JSON.stringify({ price, stock, wanted, box: boxValue, imageLink: cardLink }));
                 resultCollection.updateOne({ _id: objectId }, {
                     $set: {
@@ -259,7 +259,7 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
  * saves the result in the database and sends it via websockets and MQTT
  * @param req http request containing the taken image in the request body
  */
-app.post('/', upload.single('image'), async (req, res, next) => {
+app.post('/recognize', upload.single('image'), async (req, res, next) => {
     // save the start time in the database before processing the data
     const objectWithoutResultValues = { start: new Date() };
     let objectId;
@@ -277,7 +277,7 @@ app.post('/', upload.single('image'), async (req, res, next) => {
     let cardImage = path.join(__dirname, './test_raspimg/1.jpg');
 
     // call the computer vision model to recognize the card
-    const childPython = spawn('python', ['get_match_and_sort.py', cardImage]);
+    const childPython = spawn(process.env.PYTHON_VERSION, ['get_match_and_sort.py', cardImage]);
 
     // only for testing TODO: remove
     io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/6/d/6da7cd39-1f8a-4f68-adb7-df2beac02263.jpg?1572490600" }));
