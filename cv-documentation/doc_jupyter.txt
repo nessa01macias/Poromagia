@@ -1,0 +1,4 @@
+It is easier to implement a big project when the main parts are broken down into little pieces.
+As an example, the computer vision will be developed here and then joined to the main branch.
+1.jpg is included as it is used in the notebook
+https://en.wikipedia.org/wiki/Magic:_The_Gathering is extremely helpful!
