@@ -17,6 +17,7 @@ The porpuse of the machine is to implement automated sorting for Poromagia's col
   * [Machine's description](#machine-description)
   * [Web page's interface](#webpage-interface)
   * [Installation](#installation)
+  * [Setting up](#setting)
   
 - [Documentation](#documentation)
   * [Technologies](#technologies)
@@ -36,21 +37,30 @@ git clone https://github.com/nessa01macias/Poromagia.git
 ```
 Downloading as a .zip package is available on the Github interface.
 
-2. To install all the back end dependancies required, go to the the root folder and next steps.
+2. To install all the back end dependancies required, go to the the root folder and  follow the next steps.
 
-2.1 Install all the python modules by running 
+Install all the python modules by running 
 ```
 pip install -r requirements.py
 ```
-2.2 Install all the nodejs dependancies needed by running
+Install all the nodejs dependancies needed by running
 ```
 npm install
 ```
+3. To install all the front end dependancies required, go to the frontend folder, and run
+```
+npm install
+```
+## Setting up
+The project can be executed by running the following commands
+```
+node server.js
+```
+```
+ng serve 
+```
 
-* In backend > resources folder, run node backend.js
-* In frontend folder, run ng serve --open
 
-2. Install angular dependancies nodejs dependancies by going to that specific folder and writing the command npm install. 
 
 ### Bibliography 
 https://sease.io/2021/10/how-to-manage-a-large-json-file-efficiently-and-quickly.html https://www.kdnuggets.com/2018/03/5-things-big-data.html https://www.youtube.com/watch?v=9N6a-VLBa2I&t=171s&ab_channel=CoreySchafer https://www.udemy.com/course/raspberry-pi-full-stack-raspbian/learn/lecture/9607964?start=15#overview https://www.youtube.com/watch?v=WQeoO7MI0Bs&ab_channel=Murtaza%27sWorkshop-RoboticsandAI https://www.youtube.com/watch?v=nnH55-zD38I&ab_channel=Murtaza%27sWorkshop-RoboticsandAI https://www.computervision.zone/ https://towardsdatascience.com/calculating-string-similarity-in-python-276e18a7d33a https://superuser.com/questions/519939/download-a-pdf-from-a-website-every-24-hours https://stackoverflow.com/questions/44751942/how-would-you-automate-downloading-a-file-from-a-site-everyday-using-python https://blog.sqlizer.io/posts/convert-json-to-sql/ https://www.youtube.com/watch?v=9N6a-VLBa2I&t=171s&ab_channel=CoreySchafer https://www.youtube.com/watch?v=ADV-AjAXHdc&ab_channel=PythonTutorialsforDigitalHumanities
