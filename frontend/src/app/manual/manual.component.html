@@ -2,10 +2,10 @@
   <app-navigation [activeIndex]="3"></app-navigation>
 
   <h2>User manual</h2>
-  <div class="pageDropdown">
+  <div class="pageDropdown" (click)="toggleDropdownStatus(0)">
     <div>Machine control</div>
-    <mat-icon (click)="toggleDropdownStatus(0)" *ngIf="!dropdownOpenValues[0]">keyboard_arrow_down</mat-icon>
-    <mat-icon (click)="toggleDropdownStatus(0)" *ngIf="dropdownOpenValues[0]">keyboard_arrow_up</mat-icon>
+    <mat-icon *ngIf="!dropdownOpenValues[0]">keyboard_arrow_down</mat-icon>
+    <mat-icon *ngIf="dropdownOpenValues[0]">keyboard_arrow_up</mat-icon>
   </div>
   <div class="pageManual" *ngIf="dropdownOpenValues[0]">
     The machine control page is the default page. It is displayed when entering the URL http://localhost:4200. On this page the sorting values can be entered, and the machine can be started and stopped. When the machine is currently stopped a category can be selected:
@@ -22,10 +22,10 @@
     When the machine is running, the category buttons and input fields are disabled and can’t be changed. When clicking on the stop button, the machine is stopped, and the sorting values can be changed again.
 
   </div>
-  <div class="pageDropdown">
+  <div class="pageDropdown" (click)="toggleDropdownStatus(1)">
     <div>Status page</div>
-    <mat-icon (click)="toggleDropdownStatus(1)" *ngIf="!dropdownOpenValues[1]">keyboard_arrow_down</mat-icon>
-    <mat-icon (click)="toggleDropdownStatus(1)" *ngIf="dropdownOpenValues[1]">keyboard_arrow_up</mat-icon>
+    <mat-icon *ngIf="!dropdownOpenValues[1]">keyboard_arrow_down</mat-icon>
+    <mat-icon *ngIf="dropdownOpenValues[1]">keyboard_arrow_up</mat-icon>
   </div>
   <div class="pageManual" *ngIf="dropdownOpenValues[1]">
     The status page (http://localhost:4200/status) shows the picture of the current card and the recognized card. When a new picture is taken by the raspberry pi it is displayed on the left side. While the computer vision model runs to recognize the card a loading spinner is displayed:
@@ -37,10 +37,10 @@
     When Poromagia's database does not have the card in their storage:
     <img src="../../assets/status-4.jpg" class="images-size">
   </div>
-  <div class="pageDropdown">
+  <div class="pageDropdown" (click)="toggleDropdownStatus(2)">
     <div>Statistics</div>
-    <mat-icon (click)="toggleDropdownStatus(2)" *ngIf="!dropdownOpenValues[2]">keyboard_arrow_down</mat-icon>
-    <mat-icon (click)="toggleDropdownStatus(2)" *ngIf="dropdownOpenValues[2]">keyboard_arrow_up</mat-icon>
+    <mat-icon *ngIf="!dropdownOpenValues[2]">keyboard_arrow_down</mat-icon>
+    <mat-icon *ngIf="dropdownOpenValues[2]">keyboard_arrow_up</mat-icon>
   </div>
   <div class="pageManual" *ngIf="dropdownOpenValues[2]">
     On the statistics page (http://localhost:4200/statistics) different statistics data is displayed according to the selected values. The time period and the diagram type can be selected in a dropdown, which can be expanded by clicking on the arrow symbol:
