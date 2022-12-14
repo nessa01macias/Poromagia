@@ -8,7 +8,19 @@
     <mat-icon (click)="toggleDropdownStatus(0)" *ngIf="dropdownOpenValues[0]">keyboard_arrow_up</mat-icon>
   </div>
   <div class="pageManual" *ngIf="dropdownOpenValues[0]">
-    
+    The machine control page is the default page. It is displayed when entering the URL http://localhost:4200. On this page the sorting values can be entered, and the machine can be started and stopped. When the machine is currently stopped a category can be selected:
+    <img src="../../assets/sorting-category.jpg" class="images-size">
+    When choosing “Price” or “Stock” the boundary values can be set by using the input fields:
+    <img src="../../assets/input-fields.jpg" class="images-size">
+    When entering those values all cards with a value lower or equal to the first input value will be sorted into the box with number 1, all cards with a value between both input values (second value included) are sorted into box 2 and cards with a value bigger than the second input value are sorted in box 3. All other cards that couldn’t be recognized will be sorted in the box with the number 4.
+    When clicking in the input fields a keyboard is displayed to enter the values on a touch screen:
+    <img src="../../assets/full-display.jpg" class="images-size">
+    When choosing the category “Wanted” the values are already set and cannot be edited. All cards with the wanted value “true” are sorted in box 1 and all cards with the wanted value “false” are sorted into box 2. Not recognized cards are sorted in the box with the number 4.
+    <img src="../../assets/sorting-category-wanted.jpg" class="images-size">
+    If all entered values are correct the Start button is enabled and the machine can be started. When clicking on this button a start command is sent to the machine. When this command is sent, a success message is displayed:
+    <img src="../../assets/sorting-cotegory-started.jpg" class="images-size">
+    When the machine is running, the category buttons and input fields are disabled and can’t be changed. When clicking on the stop button, the machine is stopped, and the sorting values can be changed again.
+
   </div>
   <div class="pageDropdown">
     <div>Status page</div>
@@ -16,11 +28,14 @@
     <mat-icon (click)="toggleDropdownStatus(1)" *ngIf="dropdownOpenValues[1]">keyboard_arrow_up</mat-icon>
   </div>
   <div class="pageManual" *ngIf="dropdownOpenValues[1]">
-    Lorem ipsum dolor sit amet, nibh accumsan sed eu, ad impedit oportere vel, in putant constituam vis. Sed quem nemore ea. Primis facilisis vel ne, mea eligendi facilisi in, vis ei illum definiebas. Ius et homero bonorum dissentiet.
-    Vel adhuc lobortis an, no inimicus vituperata sea. Corrumpit temporibus sed eu, cum no doctus dissentias. Justo torquatos at mea, ignota gloriatur no sea, ne appareat convenire quaerendum nec. Vel ei decore pericula.
-    Ex sit euismod veritus offendit. At cum gloriatur reprimique. Id nam suscipit forensibus, pri an magna euripidis. At his constituto adipiscing disputando. Clita expetendis nec at. Eam ne dicit iisque tractatos.
-    Ius cu nulla omnium consetetur. Dicit discere nominavi ne eum. Eam diceret labores expetendis at. Sint option perfecto per ad. In nostrum deterruisset eum, quo veri nusquam recteque an, odio doming euismod mel ei.
-    Mel eu dicam delenit iracundia, integre placerat cum eu, no qui graece detraxit. Eum ne vocibus gubergren, eu dictas aliquando per. Vim cu corpora iracundia contentiones, ius adhuc clita doctus at, te vocent labitur nec. Vim an scripta posidonium, idque oportere eu vis. Duo ei qualisque adipiscing, an clita qualisque has.
+    The status page (http://localhost:4200/status) shows the picture of the current card and the recognized card. When a new picture is taken by the raspberry pi it is displayed on the left side. While the computer vision model runs to recognize the card a loading spinner is displayed:
+    <img src="../../assets/status-1.jpg" class="images-size">
+    When the card is recognized the picture and the price, stock and wanted values of the recognized card, as well as the number of the box the card is sorted in are displayed on the right side:
+    <img src="../../assets/status-2.jpg" class="images-size">
+    When an image cannot be found a default image with an error message is displayed instead:
+    <img src="../../assets/status-3.jpg" class="images-size">
+    When Poromagia's database does not have the card in their storage:
+    <img src="../../assets/status-4.jpg" class="images-size">
   </div>
   <div class="pageDropdown">
     <div>Statistics</div>
@@ -28,6 +43,25 @@
     <mat-icon (click)="toggleDropdownStatus(2)" *ngIf="dropdownOpenValues[2]">keyboard_arrow_up</mat-icon>
   </div>
   <div class="pageManual" *ngIf="dropdownOpenValues[2]">
-    Lorem ipsum
+    On the statistics page (http://localhost:4200/statistics) different statistics data is displayed according to the selected values. The time period and the diagram type can be selected in a dropdown, which can be expanded by clicking on the arrow symbol:
+    <img src="../../assets/stadistics-4.jpg" class="images-size">
+    When the dropdown is expanded the date values and the diagram can be selected with the date-pickers and the diagram buttons:
+    <img src="../../assets/stadistics-5.jpg" class="images-size">
+    If there are invalid values or there are values that are not set the warning “Selected values are invalid!” is displayed and the button to show the selected diagram is disabled:
+    <img src="../../assets/stadistics-6.jpg" class="images-size">
+    When all values are set correctly the diagram can be displayed by clicking on the “Show diagram” button or the arrow symbol:
+    <img src="../../assets/stadistics-7.jpg" class="images-size">
+    Depending on the selected diagram different charts or tables are displayed:
+    <img src="../../assets/stadistics-8.jpg" class="images-size">
+    <img src="../../assets/stadistics-9.jpg" class="images-size">
+    <img src="../../assets/stadistics-10.jpg" class="images-size">
+    <img src="../../assets/stadistics-11.jpg" class="images-size">
+    It is also possible to display multiple datasets in one graph. When selecting “Sorted cards”, “Recognized cards” and “Not recognized cards” for example, all three datasets are displayed in the graph:
+    <img src="../../assets/stadistics-12.jpg" class="images-size">
+    When there is no data in that period of time, the following warning appears:
+    <img src="../../assets/stadistics-13.jpg" class="images-size">
+
+
+
   </div>
 </main>
