@@ -3,7 +3,7 @@
   <div class="images">
     <div class="takenPic">
       <h3>Current image</h3>
-      <img *ngIf="takenImageSrc" src="{{takenImageSrc}}" alt="photo of current card"> <!--TODO: use taken pic-->
+      <img *ngIf="takenImageSrc" [src]="takenImageSrc" alt="photo of current card" class="takenImg">
       <div *ngIf="!takenImageSrc">
         <div class="notFoundCard">
           <mat-icon>close</mat-icon>

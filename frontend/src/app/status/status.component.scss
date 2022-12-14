@@ -7,6 +7,16 @@
     width: 25vw;
   }
 
+  .takenImg {
+    margin-top: 6vh;
+    width: 35vw;
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+  }
+
   .notFoundCard {
     width: 23vw;
     height: 60vh;

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {SortingCategory} from "../_utils/SortingCategory";
 import {MessageService} from "../_services/message.service";
 import {WebsocketService} from "../_services/websocket.service";
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 
 /**
@@ -18,7 +19,7 @@ export class StatusComponent implements OnInit {
   stock: string = '';
   wanted: string = '';
   boxNumber: number | undefined = undefined;
-  takenImageSrc: string = '';
+  takenImageSrc: SafeResourceUrl = '';
   recognizedImageLink: string = '';
   waitingForResult: boolean = false;
 
@@ -35,12 +36,13 @@ export class StatusComponent implements OnInit {
    * reads the status values from the local storage and sets the values accordingly
    * @param messageService service to display messages
    * @param websocketService service to handle the websocket connection and listeners
+   * @param sanitizer sanitizer used for binding an image URL
    */
-  constructor(private messageService: MessageService, private websocketService: WebsocketService) {
+  constructor(private messageService: MessageService, private websocketService: WebsocketService, private sanitizer: DomSanitizer) {
     const storedStatus = localStorage.getItem(this.recognizeCardStatus);
     if (storedStatus) {
       const storedStatusParsed = JSON.parse(storedStatus);
-      this.takenImageSrc = storedStatusParsed[this.takenImageKey];
+      this.takenImageSrc = storedStatusParsed[this.takenImageKey].changingThisBreaksApplicationSecurity;
       this.recognizedImageLink = storedStatusParsed[this.recognizedImageKey];
       this.price = storedStatusParsed[this.priceKey];
       this.stock = storedStatusParsed[this.stockKey];
@@ -95,7 +97,7 @@ export class StatusComponent implements OnInit {
    * @param data the data send via websocket containing the taken picture
    */
   imageReceivedListener = (data: string): void => {
-    this.takenImageSrc = JSON.parse(data).imgSrc;
+    this.takenImageSrc = this.sanitizer.bypassSecurityTrustResourceUrl(JSON.parse(data).raspImg);
     this.waitingForResult = true;
     localStorage.setItem(this.recognizeCardStatus, JSON.stringify({[this.takenImageKey]: this.takenImageSrc}));
   }

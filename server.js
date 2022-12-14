@@ -7,6 +7,8 @@ const cors = require('cors');
 const ISODate = require('isodate');
 const dotenv = require('dotenv').config();
 const path = require('path');
+const { readFile,...fs } = require('fs').promises;
+const {join} = require("path");
 
 const multer = require('multer')
 const storage = multer.diskStorage({
@@ -260,6 +262,19 @@ function sendRecognizeError(errorMessage, objectId, price, stock, wanted, cardId
  * @param req http request containing the taken image in the request body
  */
 app.post('/recognize', upload.single('image'), async (req, res, next) => {
+    // reads picture taken by Raspberry Pi and sends it to the frontend via WebSocket
+    const imagePath = join(__dirname, 'test_raspimg', '1.jpg');
+    const stats = await fs.stat(imagePath);
+    if (stats.isFile()) {
+        const raspImg = await readFile(imagePath);
+        const prefix = "data:image/jpg;base64,";
+        const base64Image = prefix + raspImg.toString('base64');
+        io.emit('image', JSON.stringify({ raspImg: base64Image }));
+    } else {
+        console.warn("failed to read image taken by Raspberry Pi");
+        io.emit('image', JSON.stringify({ raspImg: "" }));
+    }
+
     // save the start time in the database before processing the data
     const objectWithoutResultValues = { start: new Date() };
     let objectId;
@@ -273,14 +288,11 @@ app.post('/recognize', upload.single('image'), async (req, res, next) => {
         return next("Failed to insert initial result object into database: " + err);
     }
 
-    if (req.file) console.log("req.file:", req.file);
+    if (req.file) console.debug("req.file:", req.file);
     let cardImage = path.join(__dirname, './test_raspimg/1.jpg');
 
     // call the computer vision model to recognize the card
     const childPython = spawn(process.env.PYTHON_VERSION, ['get_match_and_sort.py', cardImage]);
-
-    // only for testing TODO: remove
-    io.emit('image', JSON.stringify({ imgSrc: "https://cards.scryfall.io/large/front/6/d/6da7cd39-1f8a-4f68-adb7-df2beac02263.jpg?1572490600" }));
 
     // listener to process the data returned by the computer vision model
     childPython.stdout.on('data', async (data) => {
