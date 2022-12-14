@@ -66,13 +66,26 @@ class TextParser:
     def gray_thresh(self) -> int:
         try: 
             gray_image = cv2.imread(self.__file_path, 0)
-            gray_image = cv2.rotate(gray_image, cv2.ROTATE_90_CLOCKWISE)
-            thresh, gray_thresh_image = cv2.threshold(gray_image, 80, 250, cv2.THRESH_BINARY)
-        #Image.fromarray(gray_thresh_image).show()
-        # print(gray_thresh_image.shape)
+            gray_image = cv2.rotate(gray_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            # thresh, gray_thresh_image = cv2.threshold(gray_image, 180, 30, cv2.THRESH_BINARY)
+            # gray_image = cv2.resize(gray_image, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+            # we need adaptive thresholding because there are many shade colors in the image
+            gray_thresh_image = cv2.adaptiveThreshold(
+                gray_image, 250,
+                # specify that it is the adaptive threst
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                # and that the pic going to be white&black
+                cv2.THRESH_BINARY,
+                # block size of the black area
+                11,
+                # constant
+                3
+            )
+            # Image.fromarray(gray_thresh_image).show()
+            # print(gray_thresh_image.shape)
+            return gray_thresh_image
         except:
             print("Something failed during gray_thresh method in textParser class!")
-        return gray_thresh_image
 
     def extract_text(self, rows, columns) -> str:
         try:
@@ -101,10 +114,8 @@ class TextParser:
 
 
     def parse_name(self) -> str:
-        rows_card_name = [250, 450]
-        columns_card_name = [270, 1125]
-        # rows_card_name = [80 , 180]
-        # columns_card_name = [100, 700]
+        rows_card_name = [150, 280]
+        columns_card_name = [30, 700]
         try:
             text = self.extract_text(rows_card_name, columns_card_name)
             return self.clean_text(text)
@@ -112,10 +123,8 @@ class TextParser:
             print("Something failed during parse_name in textParser")
 
     def parse_type(self) -> str:
-        rows_card_type = [1000, 1175]
-        columns_card_type = [280, 1125]
-        # rows_card_type = [600, 700]
-        # columns_card_type =  [100, 700]
+        rows_card_type = [620, 750]
+        columns_card_type =  [30, 700]
         try:
             text_type = self.extract_text(rows_card_type, columns_card_type)
             return self.clean_text(text_type)
@@ -123,10 +132,8 @@ class TextParser:
             print("Something failed during parse_type in textParser")
 
     def get_language(self) -> str:
-        rows_card_text = [1150, 1560]
-        columns_card_text = [270, 1300]
-        # rows_card_text = [700, 1000]
-        # columns_card_text =  [100, 700]
+        rows_card_text = [720, 1000]
+        columns_card_text =  [30, 700]
         try:
             text_card_text = self.extract_text(rows_card_text, columns_card_text)
             language = langid.classify(text_card_text)
@@ -136,8 +143,8 @@ class TextParser:
 
 
     def parse_year(self) -> str:
-        rows_card_year = [1600, 1700]
-        columns_card_year = [800, 1300]
+        rows_card_year = [900, 1100]
+        columns_card_year = [300, 700]
         # rows_card_year = [1000, 1150]
         # columns_card_year =  [100, 700]
         try:
@@ -158,7 +165,7 @@ class TextParser:
 #     # timing the code
 #     start_time = time.time()
 
-#     parser = TextParser(r'C:\Users\nessa\Poromagia\Poromagia\back_end\resources\img\test.jpg')
+#     parser = TextParser(r'C:\Users\nessa\Poromagia\Poromagia\test_raspimg\1.jpg')
 #     print(parser)
 
 #     end_time = time.time()
