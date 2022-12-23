@@ -27,8 +27,8 @@ export class GraphComponent implements OnInit {
 
   private defaultTension: number = 0.4;
   private maxGraphNumber: number = 8;
-  private graphColors: string[] = ['#3151b9', '#9C31B9FF', '#29771CFF', '#CE7E21FF',
-    '#CE212FFF', '#31a5b9', '#7cb931', '#000000'];
+  private graphColors: string[] = ['#1f54ff', '#8aff1c', '#ff9b2e', '#f81b2d',
+    '#4ed5ff', '#c93dff', '#000000', '#0ac00c'];
 
   constructor(private messageService: MessageService) {
     Chart.register(...registerables);

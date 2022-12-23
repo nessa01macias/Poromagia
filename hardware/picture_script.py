@@ -18,7 +18,7 @@ def take_picture():
     # img = Image.open("/home/melany/Documentos/Poromagia/picture.jpg")
     # print(img)
 
-    url = "http://54.83.117.198:3000/"
+    url = "http://54.83.117.198:3000/recognize"
     files =  {'image': open('picture.jpg', 'rb')}
     r = requests.post(url, files=files)
     print(r.text)
