@@ -62,9 +62,3 @@ ng serve
 
 
 
-### Bibliography 
-https://sease.io/2021/10/how-to-manage-a-large-json-file-efficiently-and-quickly.html https://www.kdnuggets.com/2018/03/5-things-big-data.html https://www.youtube.com/watch?v=9N6a-VLBa2I&t=171s&ab_channel=CoreySchafer https://www.udemy.com/course/raspberry-pi-full-stack-raspbian/learn/lecture/9607964?start=15#overview https://www.youtube.com/watch?v=WQeoO7MI0Bs&ab_channel=Murtaza%27sWorkshop-RoboticsandAI https://www.youtube.com/watch?v=nnH55-zD38I&ab_channel=Murtaza%27sWorkshop-RoboticsandAI https://www.computervision.zone/ https://towardsdatascience.com/calculating-string-similarity-in-python-276e18a7d33a https://superuser.com/questions/519939/download-a-pdf-from-a-website-every-24-hours https://stackoverflow.com/questions/44751942/how-would-you-automate-downloading-a-file-from-a-site-everyday-using-python https://blog.sqlizer.io/posts/convert-json-to-sql/ https://www.youtube.com/watch?v=9N6a-VLBa2I&t=171s&ab_channel=CoreySchafer https://www.youtube.com/watch?v=ADV-AjAXHdc&ab_channel=PythonTutorialsforDigitalHumanities
-
-{under construction}
-
-
