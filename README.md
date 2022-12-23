@@ -19,9 +19,6 @@ The porpuse of the machine is to implement automated sorting for Poromagia's col
   * [Installation](#installation)
   * [Setting up](#setting)
   
-- [Documentation](#documentation)
-  * [Technologies](#technologies)
-  * [Database access](#database-access)
  
  # User manual
  ## Physical machine description
