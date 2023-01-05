@@ -3,8 +3,8 @@ Created by Metropolia University of Applied Science students, 3rd year, Smart Io
 Contributors: Manish Subedi, Ahmed Al-Tuwaijari, Melany Macias, Sophia Schwalb. <br> 
 
 More documentation can be found in the following destinations:
-* Detailed information on the user manual can be found here: [CLICK](https://www.google.com)
-* Detailed information on the project architecture can be found here: [CLICK](https://www.google.com)
+* Detailed information on the project technical aspects can be found here: [CLICK](https://github.com/nessa01macias/Poromagia/blob/master/Documentation.pdf)
+* Detailed information on the user manual can be found here: [CLICK](https://github.com/nessa01macias/Poromagia/blob/master/User%20Manual.pdf)
 
 ### Final project for the course Internet of Things (IoT) Project TX00CI65-3010.
 
