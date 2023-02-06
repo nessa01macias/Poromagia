@@ -11,14 +11,6 @@ More documentation can be found in the following destinations:
 # Description
 The aim of the project is to produce a card sorter for Poromagia's company. Poromagia is a Finnish stablished company that distributes collectible cards and other products related to gaming. The value of the Magic The Gathering collectible cards that the company works with varies from a few cents per card to thousands of euros, and Poromagia's warehouse can contain thousands of euros in cards that need to be sorted by their employees on daily basis. <br>
 The porpuse of the machine is to implement automated sorting for Poromagia's collection cards in order to save significant amounts of time, avoid human labour, reduce financial expenses, and decrease sorting errors. This is achieved by using a software that recognizes which card it is looking at, a web interface where the user select one category that the card's clasification should be based on, and a moving plane that takes the respective card to its correct category.
-
-# Contents
-- [User manual](#user-manual)
-  * [Machine's description](#machine-description)
-  * [Web page's interface](#webpage-interface)
-  * [Installation](#installation)
-  * [Setting up](#setting)
-  
    
  ##  Installation
  The smart sorting machine is meant to be used independantly, therefore all the necessary configurations have been done already in respective sites (Raspberry Pi and AWS Cloud Server), however it can also be run locally if needed. To achieve this, follow the steps:
