@@ -19,12 +19,7 @@ The porpuse of the machine is to implement automated sorting for Poromagia's col
   * [Installation](#installation)
   * [Setting up](#setting)
   
- 
- # User manual
- ## Physical machine description
- 
- ## Web page's interface
-  
+   
  ##  Installation
  The smart sorting machine is meant to be used independantly, therefore all the necessary configurations have been done already in respective sites (Raspberry Pi and AWS Cloud Server), however it can also be run locally if needed. To achieve this, follow the steps:
  
